@@ -1,6 +1,6 @@
 {
   "name": "spendpreflight",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Spend guard for x402 agents: allow/hold/block every payment against your rules before your agent pays. Optional sanctions + new-domain screening via the SpendPreflight API.",
   "type": "module",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
   "homepage": "https://spendpreflight.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/spendpreflight/spendpreflight-js"
+    "url": "git+https://github.com/spendpreflight/spendpreflight-js.git"
   },
   "peerDependencies": {
     "@x402/core": ">=2.20.0"

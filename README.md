@@ -80,6 +80,17 @@ Any agent or language can call the same checks over HTTP with x402. No account, 
 - `GET https://api.spendpreflight.com/v1/check?address=&domain=&name=`: payee sanctions and domain risk. $0.01.
 - The full OpenAPI spec is at https://api.spendpreflight.com/openapi.json, with an `llms.txt` alongside it.
 
+## Trust
+
+Don't take our word for any of this; each point can be checked:
+
+- **The package never signs or moves funds.** It only tells your x402 client to abort. Read `src/index.ts`; it's about 250 lines.
+- **The remote check fails safe.** If the API is unreachable, the decision is `hold`, not `allow`.
+- **The API is read-only and never charges for its own errors.** 4xx and 503 responses are not settled. Live status: https://api.spendpreflight.com/status
+- **Payments are public.** They go to a published wallet on Base, so you can audit them on Basescan.
+- **Minimal data.** No request bodies are stored. See https://api.spendpreflight.com/privacy and https://api.spendpreflight.com/terms
+- **Security reports:** https://api.spendpreflight.com/.well-known/security.txt
+
 ## Notes
 
 - This package never signs, settles or holds funds. It only decides whether your client should.
