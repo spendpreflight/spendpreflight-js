@@ -1,0 +1,65 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_version:
+        description: Exact package version to release
+        required: true
+        default: '0.1.0'
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'spendpreflight/spendpreflight-js'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verify requested version
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const expected = process.env.GITHUB_REF_TYPE === 'tag'
+            ? process.env.GITHUB_REF_NAME.replace(/^v/, '')
+            : process.env.EXPECTED_VERSION;
+          if (pkg.name !== 'spendpreflight' || pkg.version !== expected) {
+            throw new Error('Package name/version does not match the requested release');
+          }
+          console.log(`Verified spendpreflight@${pkg.version}`);
+          NODE
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Inspect release contents
+        run: |
+          npm pack --dry-run --json > pack-manifest.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const [pack] = JSON.parse(fs.readFileSync('pack-manifest.json', 'utf8'));
+          const allowed = new Set(['LICENSE', 'README.md', 'package.json', 'dist/index.js', 'dist/index.d.ts']);
+          if (pack.files.length !== allowed.size || pack.files.some(file => !allowed.has(file.path))) {
+            throw new Error('Unexpected release contents');
+          }
+          console.log(pack.files.map(file => file.path).join('\n'));
+          NODE
+      - name: Publish through npm OIDC with provenance
+        run: npm publish --access public --provenance
