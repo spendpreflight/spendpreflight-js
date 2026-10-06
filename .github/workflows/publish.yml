@@ -6,10 +6,9 @@ on:
       expected_version:
         description: Exact package version to release
         required: true
-        default: '0.1.0'
-  push:
-    tags:
-      - 'v*'
+        default: '0.1.1'
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -34,12 +33,13 @@ jobs:
       - name: Verify requested version
         env:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const expected = process.env.GITHUB_REF_TYPE === 'tag'
-            ? process.env.GITHUB_REF_NAME.replace(/^v/, '')
+          const expected = process.env.GITHUB_EVENT_NAME === 'release'
+            ? process.env.RELEASE_TAG.replace(/^v/, '')
             : process.env.EXPECTED_VERSION;
           if (pkg.name !== 'spendpreflight' || pkg.version !== expected) {
             throw new Error('Package name/version does not match the requested release');
