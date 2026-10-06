@@ -1,0 +1,88 @@
+# spendpreflight
+
+**Allow, hold or block every x402 payment before your agent pays.**
+
+Maintained by the operator of SpendPreflight, the optional paid screening API linked below.
+
+Drop-in spend guard for the official x402 client (`@x402/core`, `@x402/fetch`, `@x402/axios`). It checks each payment *before anything is signed*:
+
+- **Local rules (free):** per-payment max, hold threshold, daily cap, network and asset checks (USDC only by default), and domain or payTo allow/blocklists.
+- **Remote screening (optional):** an OFAC sanctions screen of the payee wallet and a new-domain check via the [SpendPreflight API](https://spendpreflight.com), at $0.02 per check over x402, or free on the trial.
+
+A blocked payment is aborted before signing. A hold goes to your `onHold` callback, or is denied. Every decision is passed to `onDecision` so you can log it.
+
+```bash
+npm i spendpreflight @x402/fetch @x402/evm viem
+```
+
+```ts
+import { x402Client, wrapFetchWithPayment } from "@x402/fetch";
+import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { privateKeyToAccount } from "viem/accounts";
+import { guard } from "spendpreflight";
+
+const account = privateKeyToAccount(process.env.AGENT_KEY as `0x${string}`);
+const client = new x402Client().register("eip155:8453", new ExactEvmScheme(account));
+const pay = wrapFetchWithPayment(fetch, client);
+
+guard(client, {
+  rules: { maxPerPaymentUsd: 1, holdAboveUsd: 0.25, dailyCapUsd: 20 },
+  remote: { fetch: pay },                 // sanctions + new-domain screening, $0.02/check
+  onHold: async v => askHuman(v),         // return true to approve
+  onDecision: v => console.log(v.decision, v.reasons, v.receiptId),
+});
+
+const res = await pay("https://api.some-paid-service.com/data"); // guarded
+```
+
+### Try it without paying
+
+```ts
+guard(client, { remote: { trial: true } }); // 3 free remote checks per day per IP
+```
+
+Or use local rules only, with no network call:
+
+```ts
+guard(client, { remote: false });
+```
+
+## Decisions
+
+| Decision | What happens | Typical reasons |
+|---|---|---|
+| `allow` | Payment proceeds | All rules passed |
+| `hold` | `onHold(verdict)` decides; denied if you don't provide one | Above hold threshold, domain not on allowlist, new domain, possible sanctions name match, remote check unavailable |
+| `block` | Payment aborted before signing | Over max, daily cap hit, wrong network or asset, blocklisted, payee wallet on the OFAC SDN list |
+
+The remote check fails safe: if the API is unreachable, the decision is `hold`. Set `remote.onError: "allow"` to fail open instead.
+
+Calls to the SpendPreflight API itself are never guarded, so passing the same paying fetch is safe and won't recurse.
+
+## Rules
+
+| Option | Default |
+|---|---|
+| `maxPerPaymentUsd` | `1` |
+| `holdAboveUsd` | `0.25` |
+| `dailyCapUsd` | `25` (in-process, UTC day) |
+| `allowedNetworks` | `["eip155:8453"]` (Base) |
+| `usdcOnly` | `true` |
+| `domainAllowlist` / `domainBlocklist` | `[]` (subdomains match) |
+| `payToAllowlist` / `payToBlocklist` | `[]` |
+| `strictAllowlist` | `false` (hold anything not on an allowlist) |
+
+## The API directly
+
+Any agent or language can call the same checks over HTTP with x402. No account, no API key:
+
+- `POST https://api.spendpreflight.com/v1/preflight`: send the 402 body plus your rules; get allow, hold or block with a receipt. $0.02.
+- `GET https://api.spendpreflight.com/v1/check?address=&domain=&name=`: payee sanctions and domain risk. $0.01.
+- The full OpenAPI spec is at https://api.spendpreflight.com/openapi.json, with an `llms.txt` alongside it.
+
+## Notes
+
+- This package never signs, settles or holds funds. It only decides whether your client should.
+- Sanctions screening is informational. It is not legal advice or a compliance certification. Verify matches before acting.
+
+MIT · [spendpreflight.com](https://spendpreflight.com) · contact@spendpreflight.com

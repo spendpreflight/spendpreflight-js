@@ -1,0 +1,56 @@
+{
+  "name": "spendpreflight",
+  "version": "0.1.0",
+  "description": "Spend guard for x402 agents: allow/hold/block every payment against your rules before your agent pays. Optional sanctions + new-domain screening via the SpendPreflight API.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "x402",
+    "agent-payments",
+    "spend-control",
+    "ai-agents",
+    "usdc",
+    "base",
+    "guardrails",
+    "sanctions",
+    "ofac",
+    "preflight",
+    "budget",
+    "agentkit"
+  ],
+  "license": "MIT",
+  "homepage": "https://spendpreflight.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spendpreflight/spendpreflight-js"
+  },
+  "peerDependencies": {
+    "@x402/core": ">=2.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "@x402/core": "^2.28.0",
+    "@x402/evm": "^2.28.0",
+    "@x402/fetch": "^2.28.0",
+    "typescript": "^7.0.2",
+    "viem": "^2.57.3",
+    "vitest": "^5.0.3"
+  }
+}
