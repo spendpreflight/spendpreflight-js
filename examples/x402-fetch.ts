@@ -21,4 +21,5 @@ export function createGuardedFetch(
 // const pay = createGuardedFetch(existingSigner);
 // const response = await pay("https://api.your-approved-merchant.example/data");
 // Optional remote screening costs $0.02 per review; see the package README for
-// guard(client, { remote: { fetch: pay } }). Shared trial: 3/day/IP, HTTP + MCP.
+// Use a SEPARATE locally guarded screening client as in examples/scout.ts.
+// Shared trial: 3/day/IP, HTTP + MCP. Never pass the merchant client recursively.
