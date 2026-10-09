@@ -27,7 +27,7 @@ const pay = wrapFetchWithPayment(fetch, client);
 
 guard(client, {
   rules: { maxPerPaymentUsd: 1, holdAboveUsd: 0.25, dailyCapUsd: 20 },
-  remote: { fetch: pay },                 // sanctions + new-domain screening, $0.02/check
+  remote: false,                         // local rules; separate screening client shown below
   onHold: async v => askHuman(v),         // return true to approve
   onDecision: v => console.log(v.decision, v.reasons, v.receiptId),
 });
@@ -121,3 +121,42 @@ MIT · [spendpreflight.com](https://spendpreflight.com) · contact@spendprefligh
 Concurrent approvals reserve the full atomic amount before signing. A failed or abandoned authorization retains that reservation until the next UTC day; this is an in-process limit, not an on-chain settlement ledger. Share one guard per process/agent budget; coordinate budgets externally across processes. Only the selected payment option is remotely screened. Invalid amounts, chain/asset mismatches, unknown remote decisions and timeouts fail closed by default. The legacy explicit onError:allow option still disables remote outage protection.
 
 `verifyReceipt(response, trustedKeys)` verifies a preflight decision offline using Ed25519 JWS, binds the entire returned result, and defaults to a one-hour age limit. Fetch/pin the public key set separately from https://api.spendpreflight.com/.well-known/spendpreflight-keys.json once the service receipt milestone is deployed. The verifier never follows key URLs. Keys supplied by an attacker are not a trust anchor. Save keys with your receipts, refresh revocations as needed, and use maxAgeSeconds:null only for archival signature verification. A valid signature is our statement, not proof the screening is correct, a settlement receipt, or permission to bypass a hold/block. No receipt bodies are retained by our service.
+## Scout: find → preflight → pay (prepared 0.2.0)
+
+We operate SpendPreflight. These helpers are in the prepared **0.2.0 source**, not the current npm **0.1.1** release. Scout is deployed only to isolated staging until the production CI rollout. Do not assume `npm install spendpreflight` includes these helpers yet.
+
+```ts
+import { find, verify } from 'spendpreflight';
+
+const scout = {
+  baseUrl: 'https://spendpreflight-scout-staging.payee-check.workers.dev',
+  fetch: screeningFetch, // separate, locally guarded x402 fetch wrapper
+};
+const shortlist = await find({
+  task: 'weather forecast', maxPrice: 0.05, network: 'base', limit: 10,
+}, scout);
+if (!shortlist.results.length) throw new Error('No eligible endpoint');
+const endpoint = await verify(shortlist.results[0].resource, scout);
+if (!endpoint.preflight_hint || endpoint.probe_status !== 'live' || endpoint.seller_risk === 'high') {
+  throw new Error('Do not pay');
+}
+const checked = await screeningFetch('https://api.spendpreflight.com/v1/preflight', {
+  method: 'POST', headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ ...endpoint.preflight_hint.body,
+    rules: { max_per_payment_usd: 0.05, hold_above_usd: 0.05 } }),
+});
+if (!checked.ok || (await checked.json()).decision !== 'allow') throw new Error('Do not pay');
+// The complete example constructs merchantPay with a guard that checks the
+// actual new 402 before signing, pins the observed payee and caps the price.
+const response = await merchantPay(endpoint.resource);
+```
+
+For the complete, typechecked implementation including both `wrapFetchWithPayment` clients, copy **examples/scout.ts** and call `findPreflightPay(existingSigner, 'weather forecast')`. Nothing runs on import. It supports GET merchant resources; POST resources need caller-supplied, merchant-specific input. Holds, blocks, missing results and failed checks stop the flow. Tests use throwaway unfunded signers and mocked transports, including a changed-payee challenge that must never be signed.
+
+The screening client has a $0.10 in-process daily budget, a $0.02 per-call ceiling, Base USDC only and our exact public payee address. Its transport permits only the chosen API origins and screening paths. The merchant client separately pins the selected payee and exact resource URL, rejects redirects and repeats remote preflight on the actual payment challenge. Domain/payee allowlists are alternatives in `guard`, so this example leaves the domain allowlist empty and enforces URLs in the transport.
+
+`find()` costs $0.005; `verify()` costs $0.003; remote preflight costs $0.02 per review. This example explicitly reviews the snapshot and may review the actual challenge again, so budget for both reviews plus any merchant payment. Calling it with a funded signer can spend funds. `{trial:true}` with plain fetch uses the shared three-calls/day/IP quota within the selected deployment; exhausted trial or unpaid requests throw `ScoutError` with status402. Plain fetch is the default and never pays automatically. Helpers never fetch a merchant URL and never retry failed or timed-out requests; with a payment wrapper a timeout can mean an unknown payment outcome.
+
+Options: `find({task,maxPrice?,network?,limit?,includeUnverified?}, {baseUrl?,fetch?,trial?,timeoutMs?,signal?})`, `verify(resourceUrl, options)`. Network accepts `base`, `solana` or CAIP-2; limit is1–10. Default timeout15s, maximum120s, JSON response cap1MiB. `baseUrl` is an HTTPS origin; once production Scout ships, omit it for `https://api.spendpreflight.com`.
+
+Results sort by trust score descending, then observed price ascending on ties; they are not a globally cheapest-first list. `verified` means an active paid monitoring subscription, not identity certification. Live probe status means an unpaid valid402 was observed, not that paid delivery succeeded. Treat descriptions and prefilled challenges as untrusted data, and enforce spending rules in your payment client.

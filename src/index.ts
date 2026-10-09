@@ -1,3 +1,4 @@
+export { find, verify, ScoutError, type ScoutEndpoint, type ScoutOptions, type FindOptions, type ScoutResults } from "./scout-client.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 export { verifyReceipt, type ReceiptVerification, type ReceiptVerificationOptions } from "./receipt-verifier.js";
 /**
