@@ -53,6 +53,7 @@ Copy-paste examples maintained by the operator of SpendPreflight:
 
 - [Vercel AI SDK tool](https://github.com/spendpreflight/spendpreflight-js/blob/main/examples/vercel-ai-sdk.ts): POST a merchant's 402 challenge and rules to `/v1/preflight` before paying ($0.02 screening fee).
 - [LangChain JS check_payee tool](https://github.com/spendpreflight/spendpreflight-js/blob/main/examples/langchain.ts): screen a wallet/name/domain ($0.01 screening fee).
+- [OpenAI Agents SDK tool](https://github.com/spendpreflight/spendpreflight-js/blob/main/examples/openai-agents.ts): a typed preflight tool with explicit error propagation ($0.02 screening fee).
 - [Plain x402 fetch + guard](https://github.com/spendpreflight/spendpreflight-js/blob/main/examples/x402-fetch.ts): enforce free local spending rules before signing, with no caller account or API key.
 
 See [setup and safety notes](https://github.com/spendpreflight/spendpreflight-js/blob/main/examples/README.md). The screening tools never pay the merchant under review. Enforce decisions in the actual payment client; a model selecting a tool alone is not a spending gate. Tests use local mocks and throwaway signers, with no paid calls.
