@@ -88,7 +88,7 @@ Version0.2.0 requires Node20+ and a **separate screening payment client**, with 
 
 Version 0.2.0 adds these three settings when `remote` is enabled. They use the public Endpoint Health Index: the price rule compares the current quote with a category median; liveness counts usable unpaid probes; payee changes are compared within the same network and asset. They do not run locally or trigger a crawl, and no merchant endpoint is paid to gather this data.
 
-Missing, ambiguous or stale index data is explicitly reported in `verdict.remote.index_evidence`. It does not become an invented healthy result or a failed probe; the other spending and sanctions rules still apply. A failed **remote request** retains the existing fail-safe `hold`. Cart-only checkout has no endpoint history. Deploy the corresponding service milestone before releasing 0.2.0; this branch is prepared and has not been published.
+Missing, ambiguous or stale index data is explicitly reported in `verdict.remote.index_evidence`. It does not become an invented healthy result or a failed probe; the other spending and sanctions rules still apply. A failed **remote request** retains the existing fail-safe `hold`. Cart-only checkout has no endpoint history. The corresponding service rules are deployed. Index coverage is still being populated; inspect index_evidence instead of assuming full-catalog coverage.
 
 ## The API directly
 
@@ -116,14 +116,14 @@ Don't take our word for any of this; each point can be checked:
 
 MIT · [spendpreflight.com](https://spendpreflight.com) · contact@spendpreflight.com
 
-## Prepared safety and signed-receipt update (0.2.0, not yet published)
+## Safety and signed receipts (0.2.0)
 
 Concurrent approvals reserve the full atomic amount before signing. A failed or abandoned authorization retains that reservation until the next UTC day; this is an in-process limit, not an on-chain settlement ledger. Share one guard per process/agent budget; coordinate budgets externally across processes. Only the selected payment option is remotely screened. Invalid amounts, chain/asset mismatches, unknown remote decisions and timeouts fail closed by default. The legacy explicit onError:allow option still disables remote outage protection.
 
-`verifyReceipt(response, trustedKeys)` verifies a preflight decision offline using Ed25519 JWS, binds the entire returned result, and defaults to a one-hour age limit. Fetch/pin the public key set separately from https://api.spendpreflight.com/.well-known/spendpreflight-keys.json once the service receipt milestone is deployed. The verifier never follows key URLs. Keys supplied by an attacker are not a trust anchor. Save keys with your receipts, refresh revocations as needed, and use maxAgeSeconds:null only for archival signature verification. A valid signature is our statement, not proof the screening is correct, a settlement receipt, or permission to bypass a hold/block. No receipt bodies are retained by our service.
-## Scout: find → preflight → pay (prepared 0.2.0)
+`verifyReceipt(response, trustedKeys)` verifies a preflight decision offline using Ed25519 JWS, binds the entire returned result, and defaults to a one-hour age limit. Fetch/pin the public key set separately from https://api.spendpreflight.com/.well-known/spendpreflight-keys.json (the service signing endpoint is live). The verifier never follows key URLs. Keys supplied by an attacker are not a trust anchor. Save keys with your receipts, refresh revocations as needed, and use maxAgeSeconds:null only for archival signature verification. A valid signature is our statement, not proof the screening is correct, a settlement receipt, or permission to bypass a hold/block. No receipt bodies are retained by our service.
+## Scout: find → preflight → pay (0.2.0 helpers; service preview)
 
-We operate SpendPreflight. These helpers are in the prepared **0.2.0 source**, not the current npm **0.1.1** release. Scout is deployed only to isolated staging until the production CI rollout. Do not assume `npm install spendpreflight` includes these helpers yet.
+We operate SpendPreflight. Version **0.2.0** includes these helpers. The Scout service remains an isolated staging preview while its full-catalog capacity gate is unresolved; production Scout routes are not enabled. Use the explicit staging baseUrl below for preview testing. Helpers default to the production origin and report its unavailable response until launch; the guard and signed-receipt verifier use the live production service.
 
 ```ts
 import { find, verify } from 'spendpreflight';
