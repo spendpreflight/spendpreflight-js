@@ -6,7 +6,7 @@ on:
       expected_version:
         description: Exact package version to release
         required: true
-        default: '0.1.1'
+        default: '0.2.0'
   release:
     types: [published]
 
@@ -48,6 +48,7 @@ jobs:
           NODE
       - run: npm ci
       - run: npm test
+      - run: npm run typecheck
       - run: npm run build
       - name: Inspect release contents
         run: |

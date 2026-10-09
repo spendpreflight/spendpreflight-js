@@ -81,6 +81,13 @@ Calls to the SpendPreflight API itself are never guarded, so passing the same pa
 | `domainAllowlist` / `domainBlocklist` | `[]` (subdomains match) |
 | `payToAllowlist` / `payToBlocklist` | `[]` |
 | `strictAllowlist` | `false` (hold anything not on an allowlist) |
+| `maxPriceMultiple` | `5` (remote only; `null` disables category price comparison) |
+| `requireLive` | `true` (remote only; hold after three usable failed unpaid probes) |
+| `holdOnPayToChange` | `true` (remote only; hold on a seven-day payTo change) |
+
+Version 0.2.0 adds these three settings when `remote` is enabled. They use the public Endpoint Health Index: the price rule compares the current quote with a category median; liveness counts usable unpaid probes; payee changes are compared within the same network and asset. They do not run locally or trigger a crawl, and no merchant endpoint is paid to gather this data.
+
+Missing, ambiguous or stale index data is explicitly reported in `verdict.remote.index_evidence`. It does not become an invented healthy result or a failed probe; the other spending and sanctions rules still apply. A failed **remote request** retains the existing fail-safe `hold`. Cart-only checkout has no endpoint history. Deploy the corresponding service milestone before releasing 0.2.0; this branch is prepared and has not been published.
 
 ## The API directly
 
