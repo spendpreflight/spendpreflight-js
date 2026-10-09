@@ -68,7 +68,7 @@ See [setup and safety notes](https://github.com/spendpreflight/spendpreflight-js
 
 The remote check fails safe: if the API is unreachable, the decision is `hold`. Set `remote.onError: "allow"` to fail open instead.
 
-Calls to the SpendPreflight API itself are never guarded, so passing the same paying fetch is safe and won't recurse.
+Version0.2.0 requires Node20+ and a **separate screening payment client**, with its own local-only guard, exact payTo/asset/network allowlist and screening budget. A claimed resource hostname never bypasses the merchant guard. Reusing the merchant client recursively fails closed before signing.
 
 ## Rules
 
@@ -115,3 +115,9 @@ Don't take our word for any of this; each point can be checked:
 - Sanctions screening is informational. It is not legal advice or a compliance certification. Verify matches before acting.
 
 MIT · [spendpreflight.com](https://spendpreflight.com) · contact@spendpreflight.com
+
+## Prepared safety and signed-receipt update (0.2.0, not yet published)
+
+Concurrent approvals reserve the full atomic amount before signing. A failed or abandoned authorization retains that reservation until the next UTC day; this is an in-process limit, not an on-chain settlement ledger. Share one guard per process/agent budget; coordinate budgets externally across processes. Only the selected payment option is remotely screened. Invalid amounts, chain/asset mismatches, unknown remote decisions and timeouts fail closed by default. The legacy explicit onError:allow option still disables remote outage protection.
+
+`verifyReceipt(response, trustedKeys)` verifies a preflight decision offline using Ed25519 JWS, binds the entire returned result, and defaults to a one-hour age limit. Fetch/pin the public key set separately from https://api.spendpreflight.com/.well-known/spendpreflight-keys.json once the service receipt milestone is deployed. The verifier never follows key URLs. Keys supplied by an attacker are not a trust anchor. Save keys with your receipts, refresh revocations as needed, and use maxAgeSeconds:null only for archival signature verification. A valid signature is our statement, not proof the screening is correct, a settlement receipt, or permission to bypass a hold/block. No receipt bodies are retained by our service.

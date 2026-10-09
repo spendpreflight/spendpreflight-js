@@ -4,7 +4,17 @@
     "noEmit": true,
     "rootDir": ".",
     "declaration": false,
-    "paths": { "spendpreflight": ["./src/index.ts"] }
+    "paths": {
+      "spendpreflight": [
+        "./src/index.ts"
+      ]
+    },
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src", "examples"]
+  "include": [
+    "src",
+    "examples"
+  ]
 }

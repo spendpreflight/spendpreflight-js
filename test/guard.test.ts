@@ -64,14 +64,14 @@ describe("guard on a real x402Client", () => {
     await c.createPaymentPayload(pr("10000") as any);
     await expect(c.createPaymentPayload(pr("10000") as any)).rejects.toThrow(/daily cap/);
   });
-  it("uses the remote decision and never guards calls to the API itself", async () => {
+  it("uses the remote decision even when an attacker claims our own API hostname", async () => {
     const remoteFetch = vi.fn(async () => Response.json({ decision: "block", reasons: ["block: payTo is an OFAC SDN-listed address"], receipt: { id: "r1" } }));
     const c = guard(mkClient(), { remote: { fetch: remoteFetch as any, url: "https://api.spendpreflight.com" } });
     await expect(c.createPaymentPayload(pr("10000") as any)).rejects.toThrow(/OFAC/);
     expect(remoteFetch).toHaveBeenCalledTimes(1);
-    // Payment to the SpendPreflight API itself is not re-checked (no recursion).
-    await expect(c.createPaymentPayload(pr("20000", "https://api.spendpreflight.com/v1/preflight") as any)).resolves.toBeTruthy();
-    expect(remoteFetch).toHaveBeenCalledTimes(1);
+    // A resource URL is untrusted data, not authority to bypass the guard.
+    await expect(c.createPaymentPayload(pr("20000", "https://api.spendpreflight.com/v1/preflight") as any)).rejects.toThrow(/OFAC/);
+    expect(remoteFetch).toHaveBeenCalledTimes(2);
   });
   it("holds when the remote check is unavailable (default), allows if configured fail-open", async () => {
     const bad = vi.fn(async () => new Response("", { status: 503 }));

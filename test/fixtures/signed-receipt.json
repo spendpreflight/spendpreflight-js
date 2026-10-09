@@ -1,0 +1,42 @@
+{
+  "note": "Public test vector only. Ephemeral private key was never saved. This key is not a production trust anchor.",
+  "now": 1791532800000,
+  "response": {
+    "decision": "allow",
+    "reasons": [
+      "allow: all rules passed"
+    ],
+    "chosen_option": {
+      "network": "card_or_checkout",
+      "asset": "USD",
+      "amountUsd": 0.01,
+      "payTo": ""
+    },
+    "options_evaluated": 1,
+    "payee": null,
+    "index_evidence": {
+      "status": "not_applicable",
+      "note": "Endpoint index rules apply to x402 resource URLs, not cart-only checkout."
+    },
+    "receipt": {
+      "id": "10aebeccfbdddfba928ee898",
+      "ts": "2026-10-09T08:00:00.000Z",
+      "input_sha256": "e778dd5b5d7b681c8534054dc2148770d76c77ce67bbace1ad387d21e36ad796",
+      "decision": "allow",
+      "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6ImRpZDp3ZWI6YXBpLnNwZW5kcHJlZmxpZ2h0LmNvbSNyZWNlaXB0LV9FMS02UW9zMGIwbmYyX3g5MEhTRGJMZUY1YjlfVS0xbTZZOEJvekVWZ0UiLCJ0eXAiOiJzcGVuZHByZWZsaWdodC1kZWNpc2lvbitqd3MifQ.eyJ2IjoxLCJpc3MiOiJodHRwczovL2FwaS5zcGVuZHByZWZsaWdodC5jb20iLCJhdWQiOiJzcGVuZHByZWZsaWdodDpkZWNpc2lvbiIsImlhdCI6MTc5MTUzMjgwMCwianRpIjoiMTBhZWJlY2NmYmRkZGZiYTkyOGVlODk4IiwicmVzdWx0Ijp7ImRlY2lzaW9uIjoiYWxsb3ciLCJyZWFzb25zIjpbImFsbG93OiBhbGwgcnVsZXMgcGFzc2VkIl0sImNob3Nlbl9vcHRpb24iOnsibmV0d29yayI6ImNhcmRfb3JfY2hlY2tvdXQiLCJhc3NldCI6IlVTRCIsImFtb3VudFVzZCI6MC4wMSwicGF5VG8iOiIifSwib3B0aW9uc19ldmFsdWF0ZWQiOjEsInBheWVlIjpudWxsLCJpbmRleF9ldmlkZW5jZSI6eyJzdGF0dXMiOiJub3RfYXBwbGljYWJsZSIsIm5vdGUiOiJFbmRwb2ludCBpbmRleCBydWxlcyBhcHBseSB0byB4NDAyIHJlc291cmNlIFVSTHMsIG5vdCBjYXJ0LW9ubHkgY2hlY2tvdXQuIn0sInJlY2VpcHQiOnsiaWQiOiIxMGFlYmVjY2ZiZGRkZmJhOTI4ZWU4OTgiLCJ0cyI6IjIwMjYtMTAtMDlUMDg6MDA6MDAuMDAwWiIsImlucHV0X3NoYTI1NiI6ImU3NzhkZDViNWQ3YjY4MWM4NTM0MDU0ZGMyMTQ4NzcwZDc2Yzc3Y2U2N2JiYWNlMWFkMzg3ZDIxZTM2YWQ3OTYiLCJkZWNpc2lvbiI6ImFsbG93In19fQ.yAXNG4hIrJ5LAZwDOqezPQPvOxjyeenfcQdHmFpWA1tUqs8I5TlXKzAIO_mCs13Wsi1dOi_Z3m5Q9o8VoRlgDA"
+    }
+  },
+  "keys": {
+    "issuer": "https://api.spendpreflight.com",
+    "keys": [
+      {
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "_E1-6Qos0b0nf2_x90HSDbLeF5b9_U-1m6Y8BozEVgE",
+        "kid": "did:web:api.spendpreflight.com#receipt-_E1-6Qos0b0nf2_x90HSDbLeF5b9_U-1m6Y8BozEVgE",
+        "alg": "EdDSA",
+        "use": "sig"
+      }
+    ]
+  }
+}

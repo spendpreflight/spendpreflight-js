@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+export { verifyReceipt, type ReceiptVerification, type ReceiptVerificationOptions } from "./receipt-verifier.js";
 /**
  * spendpreflight: allow / hold / block every x402 payment before your agent pays.
  *
@@ -51,7 +53,8 @@ export interface RemoteOptions {
   url?: string;
   /**
    * A fetch that can pay x402 (e.g. wrapFetchWithPayment(fetch, client)). Calls to the
-   * SpendPreflight API itself are never guarded, so passing the same client is safe.
+   * screening endpoint require a SEPARATE, locally guarded x402 client. A recursive
+   * use of this same guard is rejected before signing; no hostname bypass exists.
    */
   fetch?: typeof fetch;
   /** Use the free trial (3 calls/day per IP) with plain fetch instead of paying. */
@@ -101,7 +104,7 @@ export const USDC: Record<string, number> = {
   "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": 6, // Base
   "0x036cbd53842c5426634e7929541ec2318f3dcf7e": 6, // Base Sepolia
   "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": 6, // Ethereum
-  "epjfwdd5aufqssqem2qn1xzybapc8g4wegkzwytdt1v": 6, // Solana
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": 6, // Solana (case-sensitive)
 };
 
 const rank: Record<Decision, number> = { allow: 0, hold: 1, block: 2 };
@@ -115,11 +118,24 @@ function onDomainList(host: string | null, list: string[]) {
   if (!host) return false;
   return list.some(d => { const c = d.toLowerCase().replace(/^www\./, ""); return host === c || host.endsWith("." + c); });
 }
-const onList = (v: string, list: string[]) => list.some(x => x.toLowerCase() === v.toLowerCase());
+const addressKey = (v: string) => /^0x[0-9a-fA-F]{40}$/.test(v) ? v.toLowerCase() : v;
+const onList = (v: string, list: string[]) => list.some(x => addressKey(x) === addressKey(v));
+const networks: Record<string,string> = { base: "eip155:8453", "base-sepolia": "eip155:84532", ethereum: "eip155:1", solana: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" };
+const assets: Record<string,string> = { "eip155:8453":"0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", "eip155:84532":"0x036cbd53842c5426634e7929541ec2318f3dcf7e", "eip155:1":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp":"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" };
+const chain = (s: string) => networks[s] ?? s;
+const knownUsdc = (network: string, asset: string) => assets[chain(network)] === addressKey(asset);
+function validRules(r: Required<Rules>, spent: number): boolean {
+  for (const v of [r.maxPerPaymentUsd,r.dailyCapUsd]) if (!Number.isFinite(v) || v <= 0 || v*1e6 > Number.MAX_SAFE_INTEGER) return false;
+  if (!Number.isFinite(r.holdAboveUsd) || r.holdAboveUsd < 0 || r.holdAboveUsd*1e6 > Number.MAX_SAFE_INTEGER || !Number.isFinite(spent) || spent < 0 || spent*1e6 > Number.MAX_SAFE_INTEGER) return false;
+  if (r.maxPriceMultiple !== null && (!Number.isFinite(r.maxPriceMultiple) || r.maxPriceMultiple <= 0)) return false;
+  for (const v of [r.usdcOnly,r.strictAllowlist,r.requireLive,r.holdOnPayToChange]) if (typeof v !== "boolean") return false;
+  return [r.allowedNetworks,r.domainAllowlist,r.domainBlocklist,r.payToAllowlist,r.payToBlocklist].every(a=>Array.isArray(a)&&a.length<=100&&a.every(v=>typeof v==="string"&&v.length>0&&v.length<=2048));
+}
+const budgetAtomic = (usd: number) => BigInt(Math.floor(usd*1e6));
 
 /** Pure local evaluation of one selected payment requirement. */
 export function evaluateLocal(
-  req: { network?: string; asset?: string; amount?: string; maxAmountRequired?: string; payTo?: string; resource?: string },
+  req: { scheme?: string; network?: string; asset?: string; amount?: string; maxAmountRequired?: string; payTo?: string; resource?: string },
   resourceUrl: string | null,
   rules: Rules = {},
   spentTodayUsd = 0,
@@ -133,18 +149,23 @@ export function evaluateLocal(
   const asset = String(req.asset ?? "");
   const payTo = String(req.payTo ?? "");
   const atomic = req.amount ?? req.maxAmountRequired;
-  const dec = USDC[asset.toLowerCase()];
-  const amountUsd = atomic != null && dec != null ? Number(atomic) / 10 ** dec : null;
+  const validAtomic = typeof atomic === "string" && /^(0|[1-9][0-9]{0,77})$/.test(atomic) && BigInt(atomic) <= BigInt(Number.MAX_SAFE_INTEGER);
+  const dec = knownUsdc(network,asset) ? 6 : undefined;
+  const amountUsd = validAtomic && dec !== undefined ? Number(atomic) / 1e6 : null;
   const resource = resourceUrl ?? req.resource ?? null;
   const host = hostOf(resource);
 
-  if (!r.allowedNetworks.includes(network)) f("block", `network ${network} not allowed`);
+  if (!validRules(r,spentTodayUsd)) return { decision:"block",reasons:["block: invalid spending rules or spend counter"],amountUsd,payTo,network,resource };
+  if (!validAtomic) f("block","invalid atomic payment amount");
+  if (req.scheme !== undefined && req.scheme !== "exact") f("block","unsupported payment scheme");
+  if (chain(network).startsWith("eip155:") && !/^0x[0-9a-fA-F]{40}$/.test(payTo)) f("block","invalid EVM payTo");
+  if (!r.allowedNetworks.some(n=>chain(n)===chain(network))) f("block", `network ${network} not allowed`);
   if (r.usdcOnly && dec == null) f("block", `asset ${asset} is not a known USDC contract`);
   if (amountUsd == null) f("hold", "amount could not be priced in USD");
   else {
-    if (amountUsd > r.maxPerPaymentUsd) f("block", `amount $${amountUsd} exceeds max $${r.maxPerPaymentUsd}`);
-    else if (amountUsd > r.holdAboveUsd) f("hold", `amount $${amountUsd} above hold threshold $${r.holdAboveUsd}`);
-    if (spentTodayUsd + amountUsd > r.dailyCapUsd) f("block", `daily cap $${r.dailyCapUsd} would be exceeded (spent $${spentTodayUsd.toFixed(2)})`);
+    if (BigInt(atomic!) > budgetAtomic(r.maxPerPaymentUsd)) f("block", `amount $${amountUsd} exceeds max $${r.maxPerPaymentUsd}`);
+    else if (BigInt(atomic!) > budgetAtomic(r.holdAboveUsd)) f("hold", `amount $${amountUsd} above hold threshold $${r.holdAboveUsd}`);
+    if (BigInt(Math.ceil(spentTodayUsd*1e6)) + BigInt(atomic!) > budgetAtomic(r.dailyCapUsd)) f("block", `daily cap $${r.dailyCapUsd} would be exceeded (spent $${spentTodayUsd.toFixed(2)})`);
   }
   if (onDomainList(host, r.domainBlocklist)) f("block", `domain ${host} is on blocklist`);
   if (payTo && onList(payTo, r.payToBlocklist)) f("block", `payTo ${payTo} is on blocklist`);
@@ -159,16 +180,22 @@ export function evaluateLocal(
 }
 
 async function remotePreflight(paymentRequired: any, resource: string | null, rules: Rules, spentTodayUsd: number, opt: RemoteOptions) {
-  const base = (opt.url ?? DEFAULT_API).replace(/\/$/, "");
+  const parsed = new URL(opt.url ?? DEFAULT_API);
+  if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.search || parsed.hash) throw new Error("Invalid screening URL");
+  const base = parsed.toString().replace(/\/$/, "");
   const url = `${base}/v1/preflight${opt.trial ? "?trial=1" : ""}`;
   const f = opt.trial || !opt.fetch ? fetch : opt.fetch;
   const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), opt.timeoutMs ?? 8000);
-  try {
+  const timeout = opt.timeoutMs ?? 8000;
+  if (!Number.isFinite(timeout) || timeout < 1 || timeout > 60000) throw new Error("Invalid timeout");
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => { timer=setTimeout(()=>{ctl.abort();reject(new Error("Screening deadline exceeded"));},timeout); });
+  const operation = async () => {
     const res = await f(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
       signal: ctl.signal,
+      redirect: "error",
       body: JSON.stringify({
         challenge: paymentRequired,
         resource_url: resource ?? undefined,
@@ -183,8 +210,15 @@ async function remotePreflight(paymentRequired: any, resource: string | null, ru
       }),
     });
     if (!res.ok) throw new Error(`SpendPreflight HTTP ${res.status}`);
-    return (await res.json()) as { decision: Decision; reasons: string[]; receipt?: { id: string } };
-  } finally { clearTimeout(t); }
+    const reader = res.body?.getReader(); if (!reader) throw new Error("Empty screening response");
+    let total=0; const chunks:Uint8Array[]=[];
+    try { for (;;) { const chunk=await reader.read(); if(chunk.done)break; total+=chunk.value.length; if(total>1_048_576)throw new Error("Screening response too large");chunks.push(chunk.value); } } finally { await reader.cancel().catch(()=>{}); }
+    const bytes=new Uint8Array(total);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length;}
+    const result=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes));
+    if (!result || !["allow","hold","block"].includes(result.decision) || !Array.isArray(result.reasons) || !result.reasons.every((r:unknown)=>typeof r==="string")) throw new Error("Invalid screening response");
+    return result as { decision:Decision;reasons:string[];receipt?:{id:string} };
+  };
+  try { return await Promise.race([operation(),deadline]); } finally { clearTimeout(timer);ctl.abort(); }
 }
 
 /**
@@ -195,51 +229,37 @@ export function guard<C extends HookableClient>(client: C, options: GuardOptions
   const rules = { ...DEFAULT_RULES, ...(options.rules ?? {}) };
   const now = options.now ?? Date.now;
   const remote = options.remote === false ? false : options.remote;
-  const apiHost = hostOf(remote ? remote.url ?? DEFAULT_API : DEFAULT_API);
-  let day = new Date(now()).toISOString().slice(0, 10);
-  let spent = 0;
-  const pending = new WeakMap<object, number>();
-
-  client.onBeforePaymentCreation(async (ctx: any) => {
-    const today = new Date(now()).toISOString().slice(0, 10);
-    if (today !== day) { day = today; spent = 0; }
-    const req = ctx.selectedRequirements ?? {};
-    const resource: string | null = ctx.paymentRequired?.resource?.url ?? req.resource ?? null;
-
-    // Never guard payments to the SpendPreflight API itself (avoids recursion).
-    if (hostOf(resource) === apiHost) return;
-
-    const v = evaluateLocal(req, resource, rules, spent);
-    if (v.decision !== "block" && remote) {
-      try {
-        const rr = await remotePreflight(ctx.paymentRequired, resource, rules, spent, remote);
-        v.remote = rr;
-        v.receiptId = rr.receipt?.id;
-        for (const why of rr.reasons ?? []) if (!why.startsWith("allow")) v.reasons.push(`remote ${why}`);
-        v.decision = worst(v.decision, rr.decision);
-      } catch (e: any) {
-        const fallback = remote.onError ?? "hold";
-        v.reasons.push(`${fallback}: remote preflight unavailable (${e?.message ?? e})`);
-        v.decision = worst(v.decision, fallback);
+  const remoteContext = new AsyncLocalStorage<boolean>();
+  let day = new Date(now()).toISOString().slice(0,10), reserved = 0n;
+  let queue = Promise.resolve();
+  client.onBeforePaymentCreation(async (ctx:any) => {
+    if (remoteContext.getStore()) return {abort:true,reason:"spendpreflight hold: recursive screening payment; use a separate locally guarded screening client"};
+    const previous=queue; let release!:()=>void; queue=new Promise<void>(resolve=>{release=resolve;}); await previous;
+    try {
+      const today=new Date(now()).toISOString().slice(0,10);if(today>day){day=today;reserved=0n;}
+      const req=ctx.selectedRequirements??{}, resource=ctx.paymentRequired?.resource?.url??req.resource??null;
+      const spent=Number(reserved)/1e6, v=evaluateLocal(req,resource,rules,spent);
+      if(v.decision!=="block"&&remote){
+        try{
+          const selected={...ctx.paymentRequired,accepts:[req]};
+          if(new TextEncoder().encode(JSON.stringify(selected)).length>60000)throw new Error("Challenge too large");
+          const rr=await remoteContext.run(true,()=>remotePreflight(selected,resource,rules,spent,remote));
+          v.remote=rr;v.receiptId=rr.receipt?.id;
+          for(const reason of rr.reasons)if(!reason.startsWith("allow"))v.reasons.push("remote "+reason);
+          v.decision=worst(v.decision,rr.decision);
+        }catch{
+          const fallback=remote.onError==="allow"?"allow":"hold";
+          v.reasons.push(fallback+": remote preflight unavailable");v.decision=worst(v.decision,fallback);
+        }
       }
-    }
-
-    let approved = v.decision === "allow";
-    if (v.decision === "hold") approved = options.onHold ? await options.onHold(v) : false;
-    await options.onDecision?.(v);
-    if (!approved) return { abort: true, reason: `spendpreflight ${v.decision}: ${v.reasons.join("; ")}` };
-    if (v.amountUsd != null) pending.set(ctx, v.amountUsd);
+      let approved=v.decision==="allow";
+      if(v.decision==="hold")approved=options.onHold?await options.onHold(v):false;
+      await options.onDecision?.(v);
+      if(!approved || v.amountUsd===null)return {abort:true,reason:"spendpreflight "+v.decision+": "+v.reasons.join("; ")};
+      // Reserve BEFORE signing. Failed/abandoned signatures retain the reservation;
+      // this is an in-process budget, not a settlement ledger.
+      reserved+=BigInt(req.amount??req.maxAmountRequired);
+    }finally{release();}
   });
-
-  client.onAfterPaymentCreation?.(async (ctx: any) => {
-    const amt = pending.get(ctx) ?? (() => {
-      const r = ctx.selectedRequirements ?? {};
-      const dec = USDC[String(r.asset ?? "").toLowerCase()];
-      const a = r.amount ?? r.maxAmountRequired;
-      return dec != null && a != null ? Number(a) / 10 ** dec : 0;
-    })();
-    if (hostOf(ctx.paymentRequired?.resource?.url ?? ctx.selectedRequirements?.resource) !== apiHost) spent += amt;
-  });
-
   return client;
 }
