@@ -27,6 +27,12 @@ export interface Rules {
   payToBlocklist?: string[];
   /** Hold anything not on an allowlist. Default false. */
   strictAllowlist?: boolean;
+  /** Remote only: hold above this category price multiple. Default 5; null disables. */
+  maxPriceMultiple?: number | null;
+  /** Remote only: hold after three usable failed unpaid probes. Default true. */
+  requireLive?: boolean;
+  /** Remote only: hold for an observed payTo change within seven days. Default true. */
+  holdOnPayToChange?: boolean;
 }
 
 export interface Verdict {
@@ -85,6 +91,9 @@ export const DEFAULT_RULES: Required<Rules> = {
   payToAllowlist: [],
   payToBlocklist: [],
   strictAllowlist: false,
+  maxPriceMultiple: 5,
+  requireLive: true,
+  holdOnPayToChange: true,
 };
 
 // Known USDC deployments -> decimals (EVM lowercased).
@@ -168,6 +177,7 @@ async function remotePreflight(paymentRequired: any, resource: string | null, ru
           allowed_networks: rules.allowedNetworks, usdc_only: rules.usdcOnly,
           domain_allowlist: rules.domainAllowlist, domain_blocklist: rules.domainBlocklist,
           payto_allowlist: rules.payToAllowlist, payto_blocklist: rules.payToBlocklist, strict_allowlist: rules.strictAllowlist,
+          max_price_multiple: rules.maxPriceMultiple, require_live: rules.requireLive, hold_on_payto_change: rules.holdOnPayToChange,
         },
         context: { spent_today_usd: spentTodayUsd },
       }),
