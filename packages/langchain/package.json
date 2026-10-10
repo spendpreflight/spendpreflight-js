@@ -1,0 +1,14 @@
+{
+  "name": "@spendpreflight/langchain",
+  "version": "0.1.0",
+  "description": "Operator-maintained LangChain tools for SpendPreflight payee checks and signed payment preflight.",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"}},
+  "files": ["dist", "README.md", "LICENSE"],
+  "repository": {"type": "git", "url": "https://github.com/spendpreflight/spendpreflight-js.git", "directory": "packages/langchain"},
+  "peerDependencies": {"@langchain/core": ">=1.2.17 <2", "zod": ">=4.6.5 <5"},
+  "engines": {"node": ">=20"}
+}
