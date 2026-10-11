@@ -160,3 +160,8 @@ The screening client has a $0.10 in-process daily budget, a $0.02 per-call ceili
 Options: `find({task,maxPrice?,network?,limit?,includeUnverified?}, {baseUrl?,fetch?,trial?,timeoutMs?,signal?})`, `verify(resourceUrl, options)`. Network accepts `base`, `solana` or CAIP-2; limit is1–10. Default timeout15s, maximum120s, JSON response cap1MiB. `baseUrl` is an HTTPS origin; once production Scout ships, omit it for `https://api.spendpreflight.com`.
 
 Results sort by trust score descending, then observed price ascending on ties; they are not a globally cheapest-first list. `verified` means an active paid monitoring subscription, not identity certification. Live probe status means an unpaid valid402 was observed, not that paid delivery succeeded. Treat descriptions and prefilled challenges as untrusted data, and enforce spending rules in your payment client.
+
+## Remote MCP connection
+
+We operate the hosted SpendPreflight MCP service. The root .mcp.json provides its HTTPS connection configuration without credentials or a local process. See [connection, pricing and signing limits](docs/mcp-connection.md). Scout tools remain staging previews.
+
