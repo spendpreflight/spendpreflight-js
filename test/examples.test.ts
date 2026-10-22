@@ -36,8 +36,10 @@ describe("framework examples", () => {
     expect(JSON.parse(result)).toMatchObject({ risk: "high" });
     const url = transport.mock.calls[0][0] as URL;
     expect(url.origin).toBe("https://api.spendpreflight.com");
-    expect(url.searchParams.get("name")).toBe("Acme & Sons");
-    expect(url.searchParams.get("domain")).toBe("merchant.example");
+    expect(url.search).toBe('');
+    const init=transport.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe('POST');expect(init.headers).toEqual({'Content-Type':'application/json'});
+    expect(JSON.parse(init.body as string)).toEqual({name:'Acme & Sons',domain:'merchant.example'});
   });
 
   it("LangChain rejects empty inputs before making a request", async () => {

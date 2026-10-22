@@ -95,8 +95,10 @@ Missing, ambiguous or stale index data is explicitly reported in `verdict.remote
 Any agent or language can call the same checks over HTTP with x402. No account, no API key:
 
 - `POST https://api.spendpreflight.com/v1/preflight`: send the 402 body plus your rules; get allow, hold or block with a receipt. $0.02.
-- `GET https://api.spendpreflight.com/v1/check?address=&domain=&name=`: payee sanctions and domain risk. $0.01.
+- `POST https://api.spendpreflight.com/v1/check`: JSON body with address, domain or name; payee sanctions and domain risk. $0.01.
 - The full OpenAPI spec is at https://api.spendpreflight.com/openapi.json, with an `llms.txt` alongside it.
+
+October22 migration: all paid API execution uses POST JSON. GET/HEAD return discovery challenges only and never settle, even with query parameters or payment headers. Build the POST request and obtain its challenge before signing; do not sign a GET quote for execution. `?trial=1` remains an optional URL flag on POST. The 0.2.1 Scout helpers and current LangChain source examples use this method; Scout production availability is still gated. The core remote preflight guard already used POST. Version0.2.0 is not republished.
 
 ## Trust
 

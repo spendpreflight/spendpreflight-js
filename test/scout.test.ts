@@ -10,11 +10,12 @@ describe('Scout client',()=>{
   const r=await find({task:'weather & forecast',maxPrice:.01,network:'base',limit:2,includeUnverified:false},{baseUrl:'https://staging.example',fetch:transport,trial:true});
   expect(r.results[0].verified).toBe(false);expect(transport).toHaveBeenCalledTimes(1);
   const [u,init]=transport.mock.calls[0] as unknown as [URL,RequestInit];
-  expect(u.origin+u.pathname).toBe('https://staging.example/v1/find');expect(Object.fromEntries(u.searchParams)).toEqual({task:'weather & forecast',max_price:'0.01',network:'base',limit:'2',include_unverified:'false',trial:'1'});expect(init).toMatchObject({method:'GET',redirect:'error',credentials:'omit'});
+  expect(u.origin+u.pathname).toBe('https://staging.example/v1/find');expect(Object.fromEntries(u.searchParams)).toEqual({trial:'1'});expect(init).toMatchObject({method:'POST',redirect:'error',credentials:'omit',headers:{'Content-Type':'application/json'}});
+  expect(JSON.parse(init.body as string)).toEqual({task:'weather & forecast',max_price:.01,network:'base',limit:2,include_unverified:false});
  });
  it('round-trips an exact resource including query and rejects mismatched verification',async()=>{
   const transport=vi.fn(async()=>Response.json(item));expect((await verify(resource,{fetch:transport})).resource).toBe(resource);
-  expect((transport.mock.calls[0][0] as unknown as URL).searchParams.get('url')).toBe(resource);
+  const [url,init]=transport.mock.calls[0] as unknown as [URL,RequestInit];expect(url.search).toBe('');expect(init.method).toBe('POST');expect(JSON.parse(init.body as string)).toEqual({url:resource});
   await expect(verify(resource,{fetch:async()=>Response.json({...item,resource:'https://other.example/'})})).rejects.toThrow('Invalid Scout verification');
  });
  it('rejects invalid inputs before any request',async()=>{

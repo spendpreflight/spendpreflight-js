@@ -16,7 +16,7 @@ export function createSpendPreflightTools(screeningFetch:typeof fetch){
   return JSON.stringify(parsed.data);
  }
  return [
-  tool(async input=>request('/v1/check?'+new URLSearchParams(Object.entries(input).filter(([,v])=>!!v) as [string,string][]),{},checkOutput),{
+  tool(async input=>request('/v1/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)},checkOutput),{
    name:'check_payee',description:'Operated by SpendPreflight. Screen a payee against OFAC and domain signals. Costs $0.01 Base USDC. Unknown is not approval; informational screening, not certification. Does not pay the merchant.',schema:checkInput,
   }),
   tool(async input=>request('/v1/preflight',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)},preflightOutput),{

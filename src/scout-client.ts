@@ -51,11 +51,10 @@ function endpoint(value: any): value is ScoutEndpoint {
       && Array.isArray(value.preflight_hint.body.challenge.accepts)
       && value.preflight_hint.body.challenge.accepts.length > 0));
 }
-async function request(path: string, query: URLSearchParams, options: ScoutOptions): Promise<any> {
+async function request(path: string, body: Record<string,unknown>, options: ScoutOptions): Promise<any> {
   const base = https(options.baseUrl ?? 'https://api.spendpreflight.com');
   if(base.pathname !== '/' || base.search)throw new ScoutError('baseUrl must be an HTTPS origin');
   const url = new URL(path,base);
-  url.search = query.toString();
   if(options.trial)url.searchParams.set('trial','1');
   const ms = options.timeoutMs ?? 15000;
   if(!Number.isFinite(ms) || ms < 1 || ms > 120000)throw new ScoutError('timeoutMs must be between 1 and 120000');
@@ -71,7 +70,7 @@ async function request(path: string, query: URLSearchParams, options: ScoutOptio
   try {
     return await Promise.race([deadline,(async()=>{
       if(controller.signal.aborted)throw new ScoutError('Scout request aborted');
-      const response = await (options.fetch ?? fetch)(url,{method:'GET',redirect:'error',credentials:'omit',signal:controller.signal,headers:{Accept:'application/json'}});
+      const response = await (options.fetch ?? fetch)(url,{method:'POST',body:JSON.stringify(body),redirect:'error',credentials:'omit',signal:controller.signal,headers:{Accept:'application/json','Content-Type':'application/json'}});
       if(!response.ok){void response.body?.cancel().catch(()=>{});throw new ScoutError('Scout HTTP '+response.status,response.status);}
       const reader = response.body?.getReader();
       if(!reader)throw new ScoutError('Scout returned an empty response');
@@ -90,19 +89,19 @@ export async function find(input: FindOptions, options: ScoutOptions = {}): Prom
   if(input.limit !== undefined && (!Number.isInteger(input.limit)||input.limit<1||input.limit>10))throw new ScoutError('limit must be 1–10');
   if(input.maxPrice !== undefined && (!Number.isFinite(input.maxPrice)||input.maxPrice<0))throw new ScoutError('maxPrice must be nonnegative');
   if(input.includeUnverified !== undefined && typeof input.includeUnverified !== 'boolean')throw new ScoutError('includeUnverified must be boolean');
-  const query=new URLSearchParams({task:input.task});
-  if(input.limit!==undefined)query.set('limit',String(input.limit));
-  if(input.maxPrice!==undefined)query.set('max_price',String(input.maxPrice));
-  if(input.network!==undefined)query.set('network',input.network);
-  if(input.includeUnverified!==undefined)query.set('include_unverified',String(input.includeUnverified));
-  const result=await request('/v1/find',query,options);
+  const body:Record<string,unknown>={task:input.task};
+  if(input.limit!==undefined)body.limit=input.limit;
+  if(input.maxPrice!==undefined)body.max_price=input.maxPrice;
+  if(input.network!==undefined)body.network=input.network;
+  if(input.includeUnverified!==undefined)body.include_unverified=input.includeUnverified;
+  const result=await request('/v1/find',body,options);
   if(!Array.isArray(result?.results)||result.results.length>(input.limit??10)||!result.results.every(endpoint)||(result.data_as_of!==null&&typeof result.data_as_of!=='string'))throw new ScoutError('Invalid Scout search response');
   return result;
 }
 /** Refresh a publicly listed endpoint (cache ≤1h); never pays the endpoint. */
 export async function verify(resourceUrl: string, options: ScoutOptions = {}): Promise<ScoutEndpoint> {
   https(resourceUrl);
-  const result=await request('/v1/verify',new URLSearchParams({url:resourceUrl}),options);
+  const result=await request('/v1/verify',{url:resourceUrl},options);
   if(!endpoint(result)||result.resource!==resourceUrl)throw new ScoutError('Invalid Scout verification response');
   return result;
 }
