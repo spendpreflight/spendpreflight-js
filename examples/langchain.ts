@@ -6,10 +6,7 @@ import { z } from "zod";
 export function createCheckPayeeTool(screeningFetch: typeof fetch) {
   return tool(async (input) => {
     const url = new URL("https://api.spendpreflight.com/v1/check");
-    for (const [key, value] of Object.entries(input)) {
-      if (value) url.searchParams.set(key, value);
-    }
-    const response = await screeningFetch(url, { signal: AbortSignal.timeout(8_000) });
+    const response = await screeningFetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(input), signal: AbortSignal.timeout(8_000) });
     if (!response.ok) throw new Error(`Payee screening unavailable (HTTP ${response.status}); do not assume low risk`);
     return JSON.stringify(await response.json());
   }, {

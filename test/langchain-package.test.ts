@@ -3,7 +3,8 @@ import {createSpendPreflightTools} from '../packages/langchain/src/index';
 describe('standalone LangChain tools',()=>{
  it('uses the real tool interface and a fixed screening origin without exposing wallet configuration',async()=>{
   const fetcher=vi.fn(async(_u:any,init:any)=>{expect(init.redirect).toBe('error');expect(init.signal).toBeInstanceOf(AbortSignal);return Response.json({risk:'unknown',flags:['fixture']});});
-  const [check]=createSpendPreflightTools(fetcher as any);expect(JSON.parse(await check!.invoke({name:'Acme & Sons'}))).toEqual({risk:'unknown',flags:['fixture']});expect(fetcher.mock.calls[0]![0]).toBe('https://api.spendpreflight.com/v1/check?name=Acme+%26+Sons');
+  const [check]=createSpendPreflightTools(fetcher as any);expect(JSON.parse(await check!.invoke({name:'Acme & Sons'}))).toEqual({risk:'unknown',flags:['fixture']});expect(fetcher.mock.calls[0]![0]).toBe('https://api.spendpreflight.com/v1/check');
+  expect(fetcher.mock.calls[0]![1]).toMatchObject({method:'POST',headers:{'Content-Type':'application/json'}});expect(JSON.parse(fetcher.mock.calls[0]![1].body)).toEqual({name:'Acme & Sons'});
  });
  it('preserves hold and block with receipt evidence',async()=>{
   for(const decision of ['hold','block']){const data={decision,reasons:['policy'],receipt:{id:'receipt',jws:'signed-evidence'}};const [,preflight]=createSpendPreflightTools((async()=>Response.json(data)) as any);expect(JSON.parse(await preflight!.invoke({cart:{total_usd:1}}))).toEqual(data);}
