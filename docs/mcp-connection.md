@@ -11,3 +11,12 @@ Production tools are `get_service_info`, `check_payee`, `preflight_payment` and 
 Keep private keys and payment authority outside the model's tools. A screening tool is advisory unless an application guard enforces hold/block in the actual signing path. Informational screening is not legal advice, identity verification, a compliance certification or a guarantee of paid delivery. See [privacy](https://api.spendpreflight.com/privacy) and [trust](https://spendpreflight.com/trust.html) before sending payee data.
 
 Listing operator disclosure: **Operated by SpendPreflight: accountless x402 payee screening and spending preflight for agents, with signed decisions and a shared free trial.**
+
+
+## Free listing check and optional protection
+
+`lint_endpoint` remains free under its own check budget and returns a heuristic Listing Guard risk score plus a seven-day report. A positive score may be legitimate; it is not a safety or Bazaar acceptance verdict. Results link optional `listing_guard` (0.05 USDC on Base) for bounded spans and manual rewrite guidance, plus Basic monitoring. `check_listing` is the same operation under a compatibility alias; do not call both for an independent assessment.
+
+14 days free for founding sellers: first10 eligible Basic registrations, no wallet needed to start. Then9USDC per31days, renewed manually. Availability: https://api.spendpreflight.com/sellers .
+
+The official directory metadata revision1.2.0-metadata.1 updates this existing remote listing; it does not publish or change npm SDK0.2.1, the remote URL or caller authentication.
