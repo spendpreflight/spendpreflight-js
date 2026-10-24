@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.spendpreflight/spendpreflight",
   "title": "SpendPreflight",
-  "description": "Operated by SpendPreflight: sanctions screening and allow/hold/block preflight for x402 payments.",
-  "version": "1.0.0",
+  "description": "Operated by SpendPreflight: free x402 Lint risk scores, paid Listing Guard and seller monitoring.",
+  "version": "1.2.0-metadata.1",
   "websiteUrl": "https://spendpreflight.com",
   "remotes": [
     {
