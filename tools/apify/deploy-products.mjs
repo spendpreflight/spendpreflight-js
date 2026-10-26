@@ -28,6 +28,7 @@ try{
    }else if(!exists)throw Error('Existing Actor required; never create an alternate');
    let actor=await request('GET','/acts/'+identity),buildId=actor.taggedBuilds?.latest?.buildId;
    entry.actor_id=actor.id;entry.build_id=buildId;entry.isPublic=actor.isPublic;save();
+   entry.metrics={observed_at:new Date().toISOString(),lifetime_runs:actor.stats?.totalRuns??null,active_users_7days_including_owner:actor.stats?.totalUsers7Days??null,public_nonowner_run_stats_30days:actor.stats?.publicActorRunStats30Days??null,payouts_usd:null,payout_note:'Unknown: not exposed by supported Actor metadata. Record only an owner-verified payout aggregate, never infer from runs or configured prices.'};save();
    if(!buildId)throw Error('No tagged build');
    const build=await request('GET','/actor-builds/'+buildId);entry.build_status=build.status;save();if(build.status!=='SUCCEEDED')throw Error('Build is not successful');
    if(phase==='inspect'){entry.state='INSPECTED';continue;}
