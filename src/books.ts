@@ -1,0 +1,8 @@
+export type PaymentReceiptInput = {tx_hash:string;log_index?:number} | {pay_to:string;amount:string;start:string;end:string};
+export interface WalletStatementInput {address:string;start:string;end:string;format?:'json'|'csv'}
+export interface BooksOptions {/** Default fetch returns 402. Supply a separately budgeted x402 fetch to authorize payment. */ fetch?:typeof fetch; signal?:AbortSignal}
+/** No signing, retries, trials, persistence or automatic parsing of an error as success. Inspect response.ok before saving. */
+export function paymentReceipt(input:PaymentReceiptInput,options:BooksOptions={}):Promise<Response>{return (options.fetch??fetch)('https://api.spendpreflight.com/v1/books/receipt',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(input),redirect:'manual',signal:options.signal??AbortSignal.timeout(30000)});}
+export function walletStatement(input:WalletStatementInput,options:BooksOptions={}):Promise<Response>{return (options.fetch??fetch)('https://api.spendpreflight.com/v1/books/statement',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(input),redirect:'manual',signal:options.signal??AbortSignal.timeout(30000)});}
+/** Free, explicit signature/hash check; does not refresh chain or screening observations. */
+export function verifyPaymentReceipt(envelope:{result:unknown;jws:string},options:BooksOptions={}):Promise<Response>{return (options.fetch??fetch)('https://api.spendpreflight.com/v1/books/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(envelope),redirect:'manual',signal:options.signal??AbortSignal.timeout(30000)});}
