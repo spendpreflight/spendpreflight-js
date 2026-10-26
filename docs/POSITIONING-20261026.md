@@ -1,0 +1,1 @@
+Public metadata only: exact owner positioning in npm description/README; official MCP short description uses the same meaning within its 100-character schema limit, with full exact line in publisher-provided metadata. Product catalog and retention links added. npm 0.3.1 and MCP 1.2.0-metadata.3 are new metadata revisions; runtime source is unchanged.
