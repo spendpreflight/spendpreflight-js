@@ -1,0 +1,19 @@
+{
+  "name": "spendpreflight-apify-sanctions",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.mjs",
+    "test": "node --test test/*.check.mjs"
+  },
+  "dependencies": {
+    "apify": "3.7.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "basic-ftp": "6.2.3"
+  }
+}

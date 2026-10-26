@@ -1,0 +1,1 @@
+{"actorOutputSchemaVersion":1,"title":"Sanctions address observations","properties":{"results":{"type":"string","title":"Results (JSON/CSV)","template":"{{links.apiDefaultDatasetUrl}}/items"}}}
