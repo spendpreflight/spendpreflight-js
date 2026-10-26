@@ -14,10 +14,20 @@ if(!process.env.APIFY_TOKEN) throw new Error('APIFY_TOKEN secret is missing');
 const me=await get('/v2/users/me');
 if(me.username!=='spendpreflight') throw new Error('Expected the spendpreflight Apify account');
 const list=await get('/v2/acts?my=true&limit=100');
+const actors=[];
+for(const a of list.items??[]){
+ const value={id:a.id,name:a.name,isPublic:a.isPublic};
+ if(a.name==='crypto-address-sanctions-screener'){
+  const actor=await get('/v2/acts/'+a.id);
+  const id=actor.taggedBuilds?.latest?.buildId;
+  if(id){const b=await get('/v2/actor-builds/'+id);value.latest_build={id:b.id,status:b.status,buildNumber:b.buildNumber};}
+ }
+ actors.push(value);
+}
 const result={checked_at:new Date().toISOString(),username:me.username,
   // Field names and boolean readiness only; no email, billing details or token.
   readiness_fields:Object.fromEntries(Object.entries(me).filter(([k,v])=>/store|publish|payout|verified/i.test(k)&&typeof v==='boolean')),
   readiness_field_names:Object.keys(me).filter(k=>/store|publish|payout|billing|verified|terms/i.test(k)),
-  actors:(list.items??[]).map(a=>({id:a.id,name:a.name,isPublic:a.isPublic}))};
+  actors};
 writeFileSync('apify-preflight.json',JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify(result));

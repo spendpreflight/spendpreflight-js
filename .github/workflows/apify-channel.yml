@@ -6,8 +6,12 @@ on:
       stage:
         description: Readiness check or private sanctions build (no Store publication)
         type: choice
-        options: [preflight, sanctions-private-build]
+        options: [preflight, sanctions-private-build, sanctions-price-existing]
         default: preflight
+      expected_build_id:
+        description: For pricing an existing build, use the verified build ID from the saved receipt
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -42,10 +46,12 @@ jobs:
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
       - name: Build and price only Sanctions Screener (private)
-        if: inputs.stage == 'sanctions-private-build' && github.ref == 'refs/heads/main'
+        if: (inputs.stage == 'sanctions-private-build' || inputs.stage == 'sanctions-price-existing') && github.ref == 'refs/heads/main'
         run: node tools/apify/deploy-sanctions.mjs
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          APIFY_DEPLOY_STAGE: ${{ inputs.stage }}
+          APIFY_EXPECTED_BUILD_ID: ${{ inputs.expected_build_id }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: apify-preflight

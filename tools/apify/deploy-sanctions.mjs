@@ -23,14 +23,29 @@ mkdirSync(authDir,{recursive:true,mode:0o700});
 writeFileSync(authPath,JSON.stringify({id:user.id,username:user.username,token:process.env.APIFY_TOKEN}),{mode:0o600});
 save();
 try{
- const command=spawnSync('apify',['push','--dir','actors/sanctions','--wait-for-finish','300'],{encoding:'utf8',timeout:360000,maxBuffer:4_000_000});
- if(command.status!==0){journal.state='CLI_BUILD_FAILED';fail('Apify CLI build failed; raw output suppressed');}
+ const owned=await request('GET','/acts?my=true&limit=100');
+ const exists=(owned.items??[]).find(a=>a.name===name);
+ if(process.env.APIFY_DEPLOY_STAGE==='sanctions-price-existing'){
+  if(!exists||!process.env.APIFY_EXPECTED_BUILD_ID)fail('Existing Actor and exact verified build ID are required');
+  journal.phase='price-existing';
+ }else{
+  if(exists)fail('Actor already exists; inspect the receipt and use the pricing-only resume stage rather than rebuilding');
+  const command=spawnSync('apify',['push','--dir','actors/sanctions','--wait-for-finish','300'],{encoding:'utf8',timeout:360000,maxBuffer:4_000_000});
+  if(command.status!==0){journal.state='CLI_BUILD_FAILED';fail('Apify CLI build failed; raw output suppressed');}
+ }
  const actor=await request('GET','/acts/'+identity);
  journal.actor={id:actor.id,name:actor.name,isPublic:actor.isPublic,buildId:actor.taggedBuilds?.latest?.buildId??null};save();
  if(!journal.actor.buildId)fail('No tagged successful build');
+ const build=await request('GET','/actor-builds/'+journal.actor.buildId);
+ journal.actor.buildStatus=build.status;save();
+ if(build.status!=='SUCCEEDED')fail('The tagged build is not successful; do not publish');
+ if(process.env.APIFY_DEPLOY_STAGE==='sanctions-price-existing'&&journal.actor.buildId!==process.env.APIFY_EXPECTED_BUILD_ID)fail('The existing Actor build changed; inspect before resuming');
  const definition=JSON.parse(readFileSync('actors/sanctions/.actor/actor.json','utf8'));
  const at=new Date().toISOString();
  // Set the approved price while still PRIVATE. Never publish for free as a workaround.
+ const previous=actor.pricingInfos?.at(-1);
+ if(previous?.pricingModel==='PAY_PER_EVENT'&&previous.pricingPerEvent?.actorChargeEvents?.['address-screened']?.eventPriceUsd===0.003){journal.state='PRIVATE_BUILT_PRICED_ALREADY';save();console.log(JSON.stringify(journal));}
+ else{
  const updated=await request('PUT','/acts/'+identity,{
   title:definition.title,description:definition.description,actorPermissionLevel:'LIMITED_PERMISSIONS',categories:['BUSINESS'],
   defaultRunOptions:{build:'latest',memoryMbytes:128,timeoutSecs:60,restartOnError:false},
@@ -39,4 +54,5 @@ try{
  });
  journal.state='PRIVATE_BUILT_PRICED';journal.pricingModel=updated.pricingInfos?.at(-1)?.pricingModel??null;save();
  console.log(JSON.stringify(journal));
+ }
 }finally{rmSync(authPath,{force:true});}
