@@ -1,0 +1,41 @@
+name: Apify Store channel
+
+on:
+  push:
+    branches: [codex/apify-sanctions-channel]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apify-store-channel
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run build:langchain
+      - name: Install pinned official Apify CLI
+        run: npm install --global apify-cli@1.10.0
+      - name: Read account and Actor metadata only
+        run: node tools/apify/preflight.mjs
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: apify-preflight
+          path: apify-preflight.json
