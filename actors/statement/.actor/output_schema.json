@@ -1,0 +1,16 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "USDC Wallet Statement Export \u2014 Base output",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "JSON result dataset",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    },
+    "csv": {
+      "type": "string",
+      "title": "USDC statement CSV",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/statement.csv"
+    }
+  }
+}

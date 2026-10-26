@@ -1,0 +1,6 @@
+{
+  "operation": "receipt",
+  "actor": "usdc-payment-receipt-base",
+  "event": "receipt-created",
+  "price_usd": 0.013
+}

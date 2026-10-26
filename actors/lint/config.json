@@ -1,0 +1,6 @@
+{
+  "operation": "lint",
+  "actor": "x402-endpoint-lint-listing-guard",
+  "event": "listing-checked",
+  "price_usd": 0.065
+}

@@ -1,0 +1,11 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "x402 Endpoint Lint + Listing Guard Score output",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "JSON result dataset",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    }
+  }
+}

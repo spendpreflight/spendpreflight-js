@@ -22,3 +22,5 @@ jobs:
       - run: npm run build:langchain
       - name: Test Apify Sanctions Actor (offline, no credentials)
         run: npm test --prefix actors/sanctions
+      - name: Test three paid Apify product wrappers (offline, no credentials)
+        run: npm test --prefix actors/paid-runtime

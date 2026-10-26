@@ -1,0 +1,44 @@
+{
+  "title": "USDC Payment Receipt \u2014 Base",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "tx_hash": {
+      "title": "Base transaction hash",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Successful native Base USDC transfer transaction. Use a log index when multiple transfers occur. Synthetic zero hash examples do not identify a payment."
+    },
+    "log_index": {
+      "title": "Optional transfer log index",
+      "type": "integer",
+      "minimum": 0,
+      "description": "Disambiguate multiple USDC Transfer logs."
+    },
+    "pay_to": {
+      "title": "Alternative recipient address",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Alternative lookup mode: supply pay_to + exact amount + start/end, without tx_hash/log_index."
+    },
+    "amount": {
+      "title": "Exact USDC amount",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Decimal USDC, max6 fractional digits; alternative recipient/window lookup only."
+    },
+    "start": {
+      "title": "Window start (UTC ISO)",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Alternative mode, inclusive start; past window, max90days."
+    },
+    "end": {
+      "title": "Window end (UTC ISO)",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Exclusive end, not future. Multiple matches fail rather than guessing."
+    }
+  },
+  "required": []
+}

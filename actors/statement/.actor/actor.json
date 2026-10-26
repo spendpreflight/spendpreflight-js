@@ -1,0 +1,12 @@
+{
+  "actorSpecification": 1,
+  "name": "usdc-wallet-statement-base",
+  "title": "USDC Wallet Statement Export — Base",
+  "description": "Read-only native Base USDC JSON/CSV in/out/self transfers with reconciled opening/closing and running balances, counterparties and OFAC flags.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "dockerfile": "../Dockerfile",
+  "readme": "../README.md",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json"
+}
