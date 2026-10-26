@@ -1,0 +1,12 @@
+{
+  "actorSpecification": 1,
+  "name": "crypto-address-sanctions-screener",
+  "title": "Crypto Address Sanctions Screener — OFAC SDN",
+  "description": "Batch exact-match crypto addresses against SpendPreflight's daily OFAC SDN snapshot, with source timestamp and explicit limits.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "dockerfile": "../Dockerfile",
+  "readme": "../README.md",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json"
+}

@@ -1,0 +1,6 @@
+{
+ "title":"Crypto Address Sanctions Screener",
+ "type":"object","schemaVersion":1,
+ "properties":{"addresses":{"title":"Public crypto addresses","type":"array","description":"1–100 public digital-currency addresses. Exact OFAC SDN matches only. EVM is case-insensitive; other formats preserve case. $0.003 per delivered address. Do not submit private data. INPUT is removed after reading; Apify independently retains output under its platform policy.","editor":"stringList","items":{"type":"string"},"prefill":["0x0000000000000000000000000000000000000000"]}},
+ "required":["addresses"]
+}

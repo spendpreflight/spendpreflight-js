@@ -1,9 +1,13 @@
 name: Apify Store channel
 
 on:
-  push:
-    branches: [codex/apify-sanctions-channel]
   workflow_dispatch:
+    inputs:
+      stage:
+        description: Readiness check or private sanctions build (no Store publication)
+        type: choice
+        options: [preflight, sanctions-private-build]
+        default: preflight
 
 permissions:
   contents: read
@@ -29,13 +33,23 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm run build:langchain
+      - name: Test Sanctions Actor behavior
+        run: npm test --prefix actors/sanctions
       - name: Install pinned official Apify CLI
         run: npm install --global apify-cli@1.10.0
       - name: Read account and Actor metadata only
         run: node tools/apify/preflight.mjs
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+      - name: Build and price only Sanctions Screener (private)
+        if: inputs.stage == 'sanctions-private-build' && github.ref == 'refs/heads/main'
+        run: node tools/apify/deploy-sanctions.mjs
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: apify-preflight
-          path: apify-preflight.json
+          path: |
+            apify-preflight.json
+            apify-sanctions-deployment.json
+        if: always()
