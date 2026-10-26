@@ -167,3 +167,20 @@ Results sort by trust score descending, then observed price ascending on ties; t
 
 We operate the hosted SpendPreflight MCP service. The root .mcp.json provides its HTTPS connection configuration without credentials or a local process. See [connection, pricing and signing limits](docs/mcp-connection.md). Scout tools remain staging previews.
 
+
+## Stablecoin Books (0.3.0)
+
+Read-only native Base USDC receipts ($0.01) and wallet statements ($0.05). Informational, not tax advice. These helpers never sign, retry, store requests/results or consume trials. Supply a separately budgeted x402 `fetch` to authorize payment; default `fetch` returns402. Return value is the original Response; inspect status before parsing or saving.
+
+```ts
+import { paymentReceipt, walletStatement, verifyPaymentReceipt } from 'spendpreflight';
+// paymentAwareFetch is your separately configured and budgeted x402 fetch.
+const response = await paymentReceipt({ tx_hash: '0x' + '1'.repeat(64) }, { fetch: paymentAwareFetch });
+if (!response.ok) throw new Error(`No receipt: ${response.status}`);
+const envelope = await response.json(); // Save privately, including the JWS.
+const verification = await verifyPaymentReceipt({ result: envelope.result, jws: envelope.jws });
+const statement = await walletStatement({ address: '0x' + '1'.repeat(40), start: '2026-10-01T00:00:00Z', end: '2026-10-02T00:00:00Z', format: 'csv' }, { fetch: paymentAwareFetch });
+// Check statement.ok, then save await statement.text().
+```
+
+Placeholders are not real transactions. Receipt matching also supports `{pay_to, amount, start, end}`; ambiguous transfers require `tx_hash` plus optional `log_index`. Windows are past UTC ranges, start inclusive/end exclusive, max90days. Max1000transfers/128RPCcalls/25seconds; oversized/unavailable historical exports fail without settlement. A lost response may have uncertain settlement: inspect the wallet before creating another authorization. Free verification checks only a signature/hash, not fresh chain state or finality. No invoice ownership or tax-lot inference. Docs: https://spendpreflight.com/books/ .
