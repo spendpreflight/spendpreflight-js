@@ -1,0 +1,54 @@
+name: Apify paid products
+on:
+  workflow_dispatch:
+    inputs:
+      product:
+        type: choice
+        options: [all, lint, receipt, statement]
+        default: all
+        description: Approved three-product channel
+      phase:
+        type: choice
+        options: [build, inspect, configure, publish]
+        default: inspect
+        description: Build privately; configure/publish requires exact saved builds
+      expected_builds:
+        type: string
+        default: '{}'
+        description: JSON operation to verified build ID mapping for configure/publish
+permissions:
+  contents: read
+concurrency:
+  group: apify-store-channel
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run build:langchain
+      - run: npm test --prefix actors/paid-runtime
+      - run: npm install --global apify-cli@1.10.0
+      - name: Deploy approved products with secret-bound CLI
+        run: node tools/apify/deploy-products.mjs
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          APIFY_PRODUCT: ${{ inputs.product }}
+          APIFY_PRODUCTS_PHASE: ${{ inputs.phase }}
+          APIFY_EXPECTED_BUILDS: ${{ inputs.expected_builds }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: apify-paid-products
+          path: apify-products-deployment.json

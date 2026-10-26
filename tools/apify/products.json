@@ -1,0 +1,138 @@
+{
+  "lint": {
+    "actor": "x402-endpoint-lint-listing-guard",
+    "title": "x402 Endpoint Lint + Listing Guard Score",
+    "event": "listing-checked",
+    "price": 0.065,
+    "example": {
+      "url": "https://api.spendpreflight.com/v1/check",
+      "method": "GET"
+    },
+    "input": {
+      "url": {
+        "title": "Public endpoint URL",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Public HTTPS only, no credentials, fragment or private network. Our request is unpaid GET; the advertised method goes only to CDP validation.",
+        "prefill": "https://api.spendpreflight.com/v1/check"
+      },
+      "method": {
+        "title": "Advertised method",
+        "type": "string",
+        "enum": [
+          "GET",
+          "HEAD",
+          "POST"
+        ],
+        "default": "GET",
+        "description": "Method to validate; no paid execution or target POST."
+      }
+    },
+    "required": [
+      "url",
+      "method"
+    ],
+    "description": "Read-only x402/CDP technical validation, bounded Listing Guard metadata risk score, flagged spans and manual rewrite guidance.",
+    "outputs": {}
+  },
+  "receipt": {
+    "actor": "usdc-payment-receipt-base",
+    "title": "USDC Payment Receipt — Base",
+    "event": "receipt-created",
+    "price": 0.013,
+    "example": {
+      "tx_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "input": {
+      "tx_hash": {
+        "title": "Base transaction hash",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Successful native Base USDC transfer transaction. Use a log index when multiple transfers occur. Synthetic zero hash examples do not identify a payment."
+      },
+      "log_index": {
+        "title": "Optional transfer log index",
+        "type": "integer",
+        "minimum": 0,
+        "description": "Disambiguate multiple USDC Transfer logs."
+      },
+      "pay_to": {
+        "title": "Alternative recipient address",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Alternative lookup mode: supply pay_to + exact amount + start/end, without tx_hash/log_index."
+      },
+      "amount": {
+        "title": "Exact USDC amount",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Decimal USDC, max6 fractional digits; alternative recipient/window lookup only."
+      },
+      "start": {
+        "title": "Window start (UTC ISO)",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Alternative mode, inclusive start; past window, max90days."
+      },
+      "end": {
+        "title": "Window end (UTC ISO)",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Exclusive end, not future. Multiple matches fail rather than guessing."
+      }
+    },
+    "required": [],
+    "description": "Read-only native Base USDC transfer verification with payer/payee, amount, time, block, L2 confirmations, OFAC flags and signed printable receipt.",
+    "outputs": {
+      "printable_receipt": {
+        "type": "string",
+        "title": "Private printable receipt HTML",
+        "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/receipt.html"
+      }
+    }
+  },
+  "statement": {
+    "actor": "usdc-wallet-statement-base",
+    "title": "USDC Wallet Statement Export — Base",
+    "event": "statement-created",
+    "price": 0.065,
+    "example": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "start": "2026-10-24T00:00:00Z",
+      "end": "2026-10-25T00:00:00Z"
+    },
+    "input": {
+      "address": {
+        "title": "Public Base address",
+        "type": "string",
+        "editor": "textfield",
+        "description": "0x +40 hex digits. Native Circle USDC only, not bridged USDbC."
+      },
+      "start": {
+        "title": "Start (UTC ISO, inclusive)",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Past ISO8601 time. Maximum90days, half-open range."
+      },
+      "end": {
+        "title": "End (UTC ISO, exclusive)",
+        "type": "string",
+        "editor": "textfield",
+        "description": "Must follow start and not be in the future. Narrow large ranges when RPC limits are reached."
+      }
+    },
+    "required": [
+      "address",
+      "start",
+      "end"
+    ],
+    "description": "Read-only native Base USDC JSON/CSV in/out/self transfers with reconciled opening/closing and running balances, counterparties and OFAC flags.",
+    "outputs": {
+      "csv": {
+        "type": "string",
+        "title": "USDC statement CSV",
+        "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/statement.csv"
+      }
+    }
+  }
+}

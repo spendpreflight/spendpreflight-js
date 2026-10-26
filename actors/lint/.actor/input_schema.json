@@ -1,0 +1,29 @@
+{
+  "title": "x402 Endpoint Lint + Listing Guard Score",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "url": {
+      "title": "Public endpoint URL",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Public HTTPS only, no credentials, fragment or private network. Our request is unpaid GET; the advertised method goes only to CDP validation.",
+      "prefill": "https://api.spendpreflight.com/v1/check"
+    },
+    "method": {
+      "title": "Advertised method",
+      "type": "string",
+      "enum": [
+        "GET",
+        "HEAD",
+        "POST"
+      ],
+      "default": "GET",
+      "description": "Method to validate; no paid execution or target POST."
+    }
+  },
+  "required": [
+    "url",
+    "method"
+  ]
+}

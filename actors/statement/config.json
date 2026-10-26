@@ -1,0 +1,6 @@
+{
+  "operation": "statement",
+  "actor": "usdc-wallet-statement-base",
+  "event": "statement-created",
+  "price_usd": 0.065
+}

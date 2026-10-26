@@ -1,0 +1,30 @@
+{
+  "title": "USDC Wallet Statement Export \u2014 Base",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "address": {
+      "title": "Public Base address",
+      "type": "string",
+      "editor": "textfield",
+      "description": "0x +40 hex digits. Native Circle USDC only, not bridged USDbC."
+    },
+    "start": {
+      "title": "Start (UTC ISO, inclusive)",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Past ISO8601 time. Maximum90days, half-open range."
+    },
+    "end": {
+      "title": "End (UTC ISO, exclusive)",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Must follow start and not be in the future. Narrow large ranges when RPC limits are reached."
+    }
+  },
+  "required": [
+    "address",
+    "start",
+    "end"
+  ]
+}
