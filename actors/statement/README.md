@@ -2,7 +2,7 @@
 
 SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.
 
-Operated by [SpendPreflight](https://spendpreflight.com). Read-only native Base USDC JSON/CSV in/out/self transfers with reconciled opening/closing and running balances, counterparties and OFAC flags. This Actor wraps the existing deployed engine; USDC/x402 remains available separately at our API. No wallet or USDC payment is required for this USD channel.
+Operated by SpendPreflight. Read-only native Base USDC JSON/CSV in/out/self transfers with reconciled opening/closing and running balances, counterparties and OFAC flags. This Actor wraps the existing deployed engine. No wallet or USDC payment is required for this USD channel.
 
 ## Input example
 
@@ -18,7 +18,7 @@ Examples are illustrative public/synthetic values, not verified payments or live
 
 ## Pricing
 
-**$0.065 per completed result** (`statement-created`), no startup event. Set max total charge per run. A result is charged once, independently of transfer count. Existing x402 prices are unchanged. Apify's20% share leaves $0.0520 before platform costs. Platform/post-run storage charges and discounts are controlled by Apify; check the Store pricing panel. Owner tests/free-plan runs do not establish revenue. No automatic retry after ambiguous billing/output failure.
+**$0.05 per completed result** (`statement-created`), no startup event. Set max total charge per run. A result is charged once, independently of transfer count. Platform/post-run storage charges and discounts are controlled by Apify; check the Store pricing panel. Owner tests/free-plan runs do not establish revenue. No automatic retry after ambiguous billing/output failure.
 
 ## Privacy and permissions
 
@@ -31,8 +31,6 @@ The Actor removes its default run INPUT after reading and never logs query/resul
 One public Base address; ISO date range of at most90days with inclusive start/exclusive end, not in the future. Native Circle USDC Transfer logs only, not bridged USDbC, other tokens or off-chain records. Limits:1000transfers,128RPCcalls,25seconds. Provider/history limits, failed balance reconciliation or stale OFAC data fail without delivering a partial paid export. Narrow the range if needed.
 
 JSON includes opening/closing balances, in/out/self transfers, exact decimal and atomic values, running balances, counterparties, UTC timestamps and OFAC address-match flags. `statement.csv` is available from the default run store. CSV counts as the same single export event, not an extra charge. Completeness is bounded RPC retrieval plus opening/closing balance reconciliation, not an independent cryptographic proof.
-
-[Wallet Statement product/API](https://spendpreflight.com/tools/wallet-statements/) · [Stablecoin Books](https://spendpreflight.com/books/)
 
 ## Limits and sources
 

@@ -2,7 +2,7 @@
 
 SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.
 
-Operated by [SpendPreflight](https://spendpreflight.com/tools/payee-screening/). Batch exact-match public crypto addresses against the same OFAC SDN address engine used by our API. No wallet, private key or USDC payment is required for this Apify channel.
+Operated by SpendPreflight. Batch exact-match public crypto addresses against the same OFAC SDN address engine used by our API. No wallet, private key or USDC payment is required for this Apify channel.
 
 ## Input
 

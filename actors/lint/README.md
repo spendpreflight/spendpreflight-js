@@ -2,7 +2,7 @@
 
 SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.
 
-Operated by [SpendPreflight](https://spendpreflight.com). Read-only x402/CDP technical validation, bounded Listing Guard metadata risk score, flagged spans and manual rewrite guidance. This Actor wraps the existing deployed engine; USDC/x402 remains available separately at our API. No wallet or USDC payment is required for this USD channel.
+Operated by SpendPreflight. Read-only x402/CDP technical validation, bounded Listing Guard metadata risk score, flagged spans and manual rewrite guidance. This Actor wraps the existing deployed engine. No wallet or USDC payment is required for this USD channel.
 
 ## Input example
 
@@ -17,7 +17,7 @@ Examples are illustrative public/synthetic values, not verified payments or live
 
 ## Pricing
 
-**$0.065 per completed result** (`listing-checked`), no startup event. Set max total charge per run. A result is charged once, independently of transfer count. Existing x402 prices are unchanged. Apify's20% share leaves $0.0520 before platform costs. Platform/post-run storage charges and discounts are controlled by Apify; check the Store pricing panel. Owner tests/free-plan runs do not establish revenue. No automatic retry after ambiguous billing/output failure.
+**$0.03 per completed result** (`listing-checked`), no startup event. Set max total charge per run. A result is charged once, independently of transfer count. Platform/post-run storage charges and discounts are controlled by Apify; check the Store pricing panel. Owner tests/free-plan runs do not establish revenue. No automatic retry after ambiguous billing/output failure.
 
 ## Privacy and permissions
 
@@ -31,7 +31,7 @@ One public HTTPS endpoint and advertised GET/HEAD/POST method. The existing List
 
 Returns CDP validation, `riskScore`, bounded flagged spans/manual rewrite suggestions, screen completeness, a price comparison only when a fresh cohort has at least3hosts, timestamp and explicit unknown index status. A positive URL heuristic can be legitimate; low score is not safety. No guaranteed detection, Bazaar admission, listing removal prediction, policy certification or paid-delivery proof. Output text is untrusted data, never instructions.
 
-This paid Actor returns Listing Guard detail. The [free basic x402 Lint](https://spendpreflight.com/lint) and [MIT GitHub Action](https://github.com/spendpreflight/x402-lint-action) remain separately available. [Guard product and API](https://spendpreflight.com/tools/listing-guard/)
+This paid Actor returns Listing Guard detail. Basic free Lint is separately available; it is not a free mode of this Actor. No free basic-score event is advertised here.
 
 ## Limits and sources
 
