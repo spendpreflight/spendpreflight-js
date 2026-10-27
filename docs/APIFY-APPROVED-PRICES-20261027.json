@@ -1,0 +1,15 @@
+{
+  "state": "SOURCE_ALIGNED_NO_PLATFORM_DISPATCH",
+  "prices_usd": {
+    "sanctions_per_address": 0.003,
+    "lint_guard_result": 0.03,
+    "receipt_result": 0.005,
+    "statement_export": 0.05
+  },
+  "authority": "Direct owner October27 request; all4 prices already saved and UIACTIVE verified",
+  "lint_free_scope": "Basic Lint separate free web; this Actor delivers paid Guard detail, no free runtime mode",
+  "updates": "Three deployment price definitions and config metadata plus4 README source documents; remove unrelated off-platform promotion. Required privacy/status/receipt-verification/source links retained.",
+  "unchanged": "Runtime source, event IDs, saved build IDs, platform prices, Actorvisibility, npmversion0.3.2 and publication",
+  "platform_actions": "NONE; Storeterms explicit approval alreadyaskedONCEpending. No API bypass/build/run/selftest/repricing/publication. READMEpreview on existing build remains stale until supported doc update or an intentionally new documentation build.",
+  "readiness": "Only static consistency and existing fullSDK tests/types/builds; not a new live product test or Store readback"
+}

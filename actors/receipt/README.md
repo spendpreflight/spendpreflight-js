@@ -2,7 +2,7 @@
 
 SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.
 
-Operated by [SpendPreflight](https://spendpreflight.com). Read-only native Base USDC transfer verification with payer/payee, amount, time, block, L2 confirmations, OFAC flags and signed printable receipt. This Actor wraps the existing deployed engine; USDC/x402 remains available separately at our API. No wallet or USDC payment is required for this USD channel.
+Operated by SpendPreflight. Read-only native Base USDC transfer verification with payer/payee, amount, time, block, L2 confirmations, OFAC flags and signed printable receipt. This Actor wraps the existing deployed engine. No wallet or USDC payment is required for this USD channel.
 
 ## Input example
 
@@ -16,7 +16,7 @@ Examples are illustrative public/synthetic values, not verified payments or live
 
 ## Pricing
 
-**$0.013 per completed result** (`receipt-created`), no startup event. Set max total charge per run. A result is charged once, independently of transfer count. Existing x402 prices are unchanged. Apify's20% share leaves $0.0104 before platform costs. Platform/post-run storage charges and discounts are controlled by Apify; check the Store pricing panel. Owner tests/free-plan runs do not establish revenue. No automatic retry after ambiguous billing/output failure.
+**$0.005 per completed result** (`receipt-created`), no startup event. Set max total charge per run. A result is charged once, independently of transfer count. Platform/post-run storage charges and discounts are controlled by Apify; check the Store pricing panel. Owner tests/free-plan runs do not establish revenue. No automatic retry after ambiguous billing/output failure.
 
 ## Privacy and permissions
 
@@ -29,8 +29,6 @@ The Actor removes its default run INPUT after reading and never logs query/resul
 Provide a Base tx hash (optional log index), OR exact pay_to + decimal amount + past start/end window. Modes cannot be mixed. Ambiguous transfers/multiple matches, missing or pending transactions, non-native-USDC logs, reorgs, stale OFAC/RPC data and provider failures return no result. Maximum90day search window and bounded RPC work.
 
 The JSON envelope includes payer/payee, decimal/atomic amount, UTC time, canonical block/hash, transaction/log index, L2 confirmations and current public OFAC address-match flags. Its Ed25519 JWS attests to the exact observation hash, not invoice ownership, commercial purpose, irreversible finality or future sanctions status. Download `receipt.html` from the default store for private printing; retain the original JSON for signature verification at the free [verification endpoint](https://api.spendpreflight.com/v1/books/verify) and [public keys](https://api.spendpreflight.com/.well-known/spendpreflight-keys.json).
-
-[Receipt product/API](https://spendpreflight.com/tools/payment-receipts/) · [Practical receipt guide](https://spendpreflight.com/blog/usdc-payment-receipt.html)
 
 ## Limits and sources
 

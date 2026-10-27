@@ -3,7 +3,7 @@
     "actor": "x402-endpoint-lint-listing-guard",
     "title": "x402 Endpoint Lint + Listing Guard Score",
     "event": "listing-checked",
-    "price": 0.065,
+    "price": 0.03,
     "example": {
       "url": "https://api.spendpreflight.com/v1/check",
       "method": "GET"
@@ -39,7 +39,7 @@
     "actor": "usdc-payment-receipt-base",
     "title": "USDC Payment Receipt — Base",
     "event": "receipt-created",
-    "price": 0.013,
+    "price": 0.005,
     "example": {
       "tx_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
     },
@@ -95,7 +95,7 @@
     "actor": "usdc-wallet-statement-base",
     "title": "USDC Wallet Statement Export — Base",
     "event": "statement-created",
-    "price": 0.065,
+    "price": 0.05,
     "example": {
       "address": "0x0000000000000000000000000000000000000000",
       "start": "2026-10-24T00:00:00Z",
