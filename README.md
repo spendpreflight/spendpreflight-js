@@ -1,5 +1,20 @@
 # SpendPreflight
 
+## Historical Quote Check before signing
+
+`createQuoteCheckHook` attaches to `onBeforePaymentCreation`. It compares the selected exact-scheme quote with a dated cached public unpaid quote, never requests the merchant, and aborts on `above_expected`, `payTo_changed`, `unknown` or an error. `ok` only means the supplied amount is not above the last comparable observation with the same recipient; it is not payment approval or loss prevention. Keep the local `guard` for allowlists, per-payment limits and its in-process daily budget.
+
+```ts
+import { createQuoteCheckHook, guard } from 'spendpreflight';
+
+// comparisonFetch is a SEPARATE locally guarded x402 fetch configured by you.
+// It can pay the comparison API's $0.001 fee; no shared trial or auto-renewal.
+client.onBeforePaymentCreation(createQuoteCheckHook({ fetch: comparisonFetch }));
+guard(client, { remote: false, rules: { maxPerPaymentUsd: 0.10, dailyCapUsd: 1 } });
+```
+
+Without an explicitly supplied paid fetch, plain fetch stops at the 402 offer. The same client cannot pay its own hook fee: recursion is rejected before signing. Missing/stale/ambiguous history returns unknown without a charge. No automatic retry, target refresh, signature replay or application of a suggested cap occurs. The informational `suggested_max_amount_per_payment` uses atomic units for the stated asset/network and expires with the cached observation; it is not a personal budget. Use `quoteCheck(input, options)` for a standalone comparison, or signed `GET /quote-check` / MCP `quote_check`. URL and quote fields are sent transiently to the comparison API; do not use private URLs or query secrets.
+
 SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.
 
 [Product catalog](https://spendpreflight.com/tools/) · [Trust and privacy](https://spendpreflight.com/trust.html)

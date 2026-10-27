@@ -265,3 +265,62 @@ export function guard<C extends HookableClient>(client: C, options: GuardOptions
   });
   return client;
 }
+
+export interface QuoteCheckInput {url:string;amount:string;payTo:string;asset:string;network:string;method?:'GET'|'HEAD'|'POST'}
+export interface QuoteCheckResult {
+  status:'ok'|'above_expected'|'payTo_changed'|'unknown';
+  comparison:QuoteCheckInput;
+  multiple:string|null;
+  suggested_max_amount_per_payment:null|{amount:string;asset:string;network:string;expires_at:string;basis:string};
+  not_charged:boolean;
+  limits:string;
+}
+export interface QuoteCheckOptions {
+  /** Plain fetch does not pay. To buy the $0.001 comparison, explicitly supply a SEPARATE locally guarded x402 fetch. No shared trial. */
+  fetch?:typeof fetch;
+  baseUrl?:string;
+  timeoutMs?:number;
+}
+const atomicAmount=(x:unknown):x is string=>typeof x==='string'&&/^(0|[1-9]\d{0,77})$/.test(x);
+function validQuoteInput(input:QuoteCheckInput){
+  const u=new URL(input.url);
+  if(input.url.length>2048||u.protocol!=='https:'||u.username||u.password||u.hash||u.port||!/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{1,62}$/.test(u.hostname)||/\.(?:localhost|local|internal|test|invalid|example|onion)$/.test(u.hostname)||!atomicAmount(input.amount)||!['payTo','asset','network'].every(k=>typeof (input as any)[k]==='string'&&/^[\x21-\x7e]{1,128}$/.test((input as any)[k]))||input.method!==undefined&&!['GET','HEAD','POST'].includes(input.method))throw Error('Invalid public quote input');
+  for(const key of u.searchParams.keys())if(/(?:^|[_-])(?:key|api.?key|token|secret|password|authorization|signature|sig)(?:$|[_-])/i.test(key))throw Error('Private URL parameters are not supported');
+}
+/** One request to our comparison API, never the merchant. Plain fetch stops at 402; no automatic retry or payment fallback. */
+export async function quoteCheck(input:QuoteCheckInput,options:QuoteCheckOptions={}):Promise<QuoteCheckResult>{
+  validQuoteInput(input);
+  const base=new URL(options.baseUrl??DEFAULT_API);
+  if(base.protocol!=='https:'||base.username||base.password||base.hash||base.pathname!=='/'||base.search)throw Error('Expected an HTTPS API origin');
+  const url=new URL('/quote-check',base);
+  for(const [key,value] of Object.entries(input))if(value!==undefined)url.searchParams.set(key,String(value));
+  const ms=options.timeoutMs??15000;if(!Number.isFinite(ms)||ms<1||ms>120000)throw Error('Invalid Quote Check deadline');
+  const ctl=new AbortController();let timer:ReturnType<typeof setTimeout>|undefined;
+  const deadline=new Promise<never>((_,reject)=>{timer=setTimeout(()=>{ctl.abort();reject(Error('Quote Check deadline; do not automatically retry a payment'));},ms);});
+  try{return await Promise.race([deadline,(async()=>{
+    const r=await (options.fetch??fetch)(url,{method:'GET',headers:{Accept:'application/json'},redirect:'error',credentials:'omit',referrerPolicy:'no-referrer',signal:ctl.signal});
+    if(!r.ok){void r.body?.cancel().catch(()=>{});throw Error('Quote Check unavailable; no automatic retry or payment fallback');}
+    const reader=r.body?.getReader();if(!reader)throw Error('Empty Quote Check result');let size=0;const chunks:Uint8Array[]=[];
+    try{while(true){const part=await reader.read();if(part.done)break;size+=part.value.length;if(size>65536)throw Error('Quote Check result too large');chunks.push(part.value);}}catch(e){void reader.cancel().catch(()=>{});throw e;}
+    const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
+    const value=JSON.parse(new TextDecoder('utf8',{fatal:true}).decode(bytes));
+    if(!['ok','above_expected','payTo_changed','unknown'].includes(value?.status)||typeof value.limits!=='string'||typeof value.not_charged!=='boolean'||!value.comparison||Object.entries(input).some(([k,v])=>value.comparison[k]!==v)||value.status==='unknown'&&value.not_charged!==true)throw Error('Invalid or mismatched Quote Check result');
+    const cap=value.suggested_max_amount_per_payment;
+    if(value.status!=='unknown'&&(!cap||!atomicAmount(cap.amount)||(input.network.startsWith('eip155:')?cap.asset.toLowerCase()!==input.asset.toLowerCase():cap.asset!==input.asset)||cap.network!==input.network||!Number.isFinite(Date.parse(cap.expires_at))||Date.parse(cap.expires_at)<=Date.now()))throw Error('Unusable historical cap');
+    return value as QuoteCheckResult;
+  })()]);}finally{clearTimeout(timer);ctl.abort();}
+}
+/** Register with client.onBeforePaymentCreation. All non-ok/unknown/error results abort; local guard limits still apply. */
+export function createQuoteCheckHook(options:QuoteCheckOptions&{method?:'GET'|'HEAD'|'POST';onResult?:(result:QuoteCheckResult)=>void|Promise<void>}={}){
+  const context=new AsyncLocalStorage<boolean>();
+  return async(ctx:any):Promise<void|{abort:true;reason:string}>=>{
+    if(context.getStore())return {abort:true,reason:'Quote Check recursive fee payment blocked; use a separate locally guarded comparison client'};
+    try{
+      const r=ctx.selectedRequirements??{},network=({base:'eip155:8453',ethereum:'eip155:1',solana:'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp','base-sepolia':'eip155:84532'} as Record<string,string>)[r.network]??r.network;
+      if(r.scheme!=='exact')throw Error('Unsupported quote scheme');
+      const input:QuoteCheckInput={url:ctx.paymentRequired?.resource?.url??r.resource,amount:r.amount??r.maxAmountRequired,payTo:r.payTo,asset:r.asset,network,...(options.method?{method:options.method}:{})};
+      const result=await context.run(true,()=>quoteCheck(input,options));await options.onResult?.(result);
+      if(result.status!=='ok')return {abort:true,reason:'Quote Check '+result.status+': review historical evidence and local spending policy before signing'};
+    }catch{return {abort:true,reason:'Quote Check unknown/unavailable: no payment signature created; no automatic retry'};}
+  };
+}
