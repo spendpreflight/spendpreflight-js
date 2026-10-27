@@ -1,6 +1,6 @@
 {
   "name": "spendpreflight",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.",
   "type": "module",
   "main": "dist/index.js",
