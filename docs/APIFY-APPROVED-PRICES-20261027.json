@@ -11,5 +11,9 @@
   "updates": "Three deployment price definitions and config metadata plus4 README source documents; remove unrelated off-platform promotion. Required privacy/status/receipt-verification/source links retained.",
   "unchanged": "Runtime source, event IDs, saved build IDs, platform prices, Actorvisibility, npmversion0.3.2 and publication",
   "platform_actions": "NONE; Storeterms explicit approval alreadyaskedONCEpending. No API bypass/build/run/selftest/repricing/publication. READMEpreview on existing build remains stale until supported doc update or an intentionally new documentation build.",
-  "readiness": "Only static consistency and existing fullSDK tests/types/builds; not a new live product test or Store readback"
+  "readiness": "Only static consistency and existing fullSDK tests/types/builds; not a new live product test or Store readback",
+  "terms_approval": "Direct owner approvedacceptance/publicationof4Actors,conditionaloffplatformCTAsremovedfirst; no newquestion",
+  "conditional_cleanup": "All4 sourceREADMEs omitoffplatformsalesCTAs/x402USDCalternatepricing/monitoringpitches;GuardActorbackendexplicitprojectiondropsfree-Lint/Action/paid-tooloffers. Plainhomepage/docs andfunctionalverificationlinksallowed.",
+  "support_SLA": "Existing2hheartbeatmonitorsActorIssues/respondwithin14days andApifyrequestswithin3businessdays; noextraautomation",
+  "documentation_builds": "New docs-onlybuilds neededforconditionalcleanup;runtime/events/icons/schemas unchanged;no oldselftestreplay/productrun"
 }
