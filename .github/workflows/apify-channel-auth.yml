@@ -1,0 +1,53 @@
+name: Apify private-run channel repair
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [prepare, repair]
+        default: prepare
+        description: Provision encrypted runtime application keys, then repair exact existing builds
+      product:
+        type: choice
+        options: [all, sanctions, lint, receipt, statement, token]
+        default: all
+      expected_builds:
+        type: string
+        required: true
+        description: Exact current operation-to-build mapping; existing intent means inspect, never redispatch
+permissions:
+  contents: read
+concurrency:
+  group: apify-store-channel
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run build:langchain
+      - run: npm test --prefix actors/paid-runtime
+      - run: npm test --prefix actors/sanctions
+      - name: Fixed Actor application channel repair
+        run: node tools/apify/channel-auth.mjs
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          CHANNEL_AUTH_PHASE: ${{ inputs.phase }}
+          CHANNEL_AUTH_PRODUCT: ${{ inputs.product }}
+          CHANNEL_AUTH_EXPECTED_BUILDS: ${{ inputs.expected_builds }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: apify-channel-auth
+          path: apify-channel-auth.json
