@@ -3,6 +3,7 @@ import {generateKeyPairSync,createHash} from 'node:crypto';
 import {readFileSync,writeFileSync,readdirSync,statSync} from 'node:fs';
 import {join,relative} from 'node:path';
 import {stageProduct} from './stage-product.mjs';
+import {authRunPath} from './run-selector.mjs';
 const products=JSON.parse(readFileSync('tools/apify/products.json','utf8'));
 const actors={sanctions:{actor:'crypto-address-sanctions-screener',id:'hNJhO0occ4FYdhUyx',event:'address-screened',price:0.003,example:{addresses:['0x'+'0'.repeat(40)]}},...Object.fromEntries(Object.entries(products).map(([k,p])=>[k,{...p,id:({lint:'FbMeGePsoq306s2Dd',receipt:'Q6mFhTZ1lbt6eNA0P',statement:'Cb9T1AqAIr19SP8yp',token:'mYL8X3MyQXEN7XZ3S'})[k]}]))};
 const phase=process.env.CHANNEL_AUTH_PHASE,operation=process.env.CHANNEL_AUTH_PRODUCT;
@@ -52,11 +53,11 @@ for(const op of operation==='all'?Object.keys(actors):[operation]){
   // Exactly one new authentication-repair build; never recreate or retry an ambiguous intent.
   build=await request('POST',base+'/builds?version=0.1&tag=latest&waitForFinish=60');entry.build_id=build.id;entry.state='BUILD_STARTED';save();
   let b=build;for(let n=0;!['SUCCEEDED','FAILED','ABORTED','TIMED-OUT'].includes(b.status)&&n<30;n++){await new Promise(r=>setTimeout(r,5000));b=await request('GET','/actor-builds/'+build.id);}
-  entry.build_status=b.status;save();if(b.status!=='SUCCEEDED')throw Error('Repair build not successful; inspect saved ID');
+  entry.build_status=b.status;save();if(b.status!=='SUCCEEDED')throw Error('Repair build not successful; inspect saved ID');build=b;
   }else{build=await request('GET','/actor-builds/'+entry.previous_build);if(build.status!=='SUCCEEDED')throw Error('Saved build not successful');entry.build_id=build.id;entry.build_status=build.status;}
   if(!/^\d+\.\d+\.\d+$/.test(build.buildNumber??''))throw Error('Exact build number required for run selector');
   entry.build_number=build.buildNumber;entry.state='AUTH_TEST_INTENT';save();
-  const run=await request('POST',base+'/runs?build='+encodeURIComponent(build.buildNumber)+'&memory=128&timeout=90&waitForFinish=60',{...p.example,_self_test:true});entry.run_id=run.id;entry.run_status=run.status;save();
+  const run=await request('POST',authRunPath(p.id,build),{...p.example,_self_test:true});entry.run_id=run.id;entry.run_status=run.status;save();
   let r=run;for(let n=0;!['SUCCEEDED','FAILED','ABORTED','TIMED-OUT'].includes(r.status)&&n<18;n++){await new Promise(q=>setTimeout(q,5000));r=await request('GET','/actor-runs/'+run.id);}
   entry.run_status=r.status;save();if(r.status!=='SUCCEEDED'||r.buildId!==build.id)throw Error('Authentication-only run failed; inspect ID, no replay');
   const proof=await request('GET','/key-value-stores/'+r.defaultKeyValueStoreId+'/records/SELFTEST');
