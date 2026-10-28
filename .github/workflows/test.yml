@@ -1,9 +1,20 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths-ignore: ['README.md', 'docs/**']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['README.md', 'docs/**']
 
 permissions:
   contents: read
+
+concurrency:
+  group: sdk-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
