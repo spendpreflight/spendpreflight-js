@@ -42,4 +42,8 @@ The Actor removes its default run INPUT after reading and does not log query/res
 
 ## Development acceptance
 
-CI may add `_self_test: true` to the synthetic input solely to verify platform startup, input deletion and a SELFTEST receipt. It performs no contract lookup, chain read or chargeable result event and is not a live-engine acceptance test. Normal runs omit this flag.
+CI may add `_self_test: true` to the synthetic input solely to verify signed private-run channel authorization, input deletion and a SELFTEST receipt. It performs no contract lookup, chain read or chargeable result event and is not a live-engine acceptance test. Normal runs omit this flag.
+
+## Private-run channel authentication
+
+An Actor-specific application signing key is encrypted in the Actor's private runtime settings and excluded from builds and public source. Only a signature over the public run/build identity, short-lived timestamp, requested-input digest and one-use nonce is sent to SpendPreflight. The backend holds the public key and checks the current official build and live proof endpoint. Customer runs, output stores and logs keep their existing access restrictions. No owner/customer Apify API token or RPC credential is forwarded. CI authorization checks produce only a SELFTEST receipt, no product lookup or chargeable event.

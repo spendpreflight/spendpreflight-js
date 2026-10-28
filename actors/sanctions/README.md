@@ -33,3 +33,7 @@ The default run `INPUT` is removed after reading; query values/results are never
 Informational screening, **not legal or tax advice**, not a compliance certification or safety guarantee. A non-match is not sanctions clearance. This tool does not assess ownership, indirect exposure, non-OFAC lists or transaction history. Verify a match against the [official OFAC source](https://ofac.treasury.gov/sanctions-list-service) before acting. No custody, signing, payment or transfer occurs. No automatic retry on ambiguous billing/output failures.
 
 Public service [privacy](https://spendpreflight.com/privacy/) and [status history](https://status.spendpreflight.com/) apply. Questions: contact@spendpreflight.com.
+
+## Private-run channel authentication
+
+An Actor-specific application signing key is encrypted in the Actor's private runtime settings and excluded from builds and public source. Only a signature over the public run/build identity, short-lived timestamp, requested-input digest and one-use nonce is sent to SpendPreflight. The backend holds the public key and checks the current official build and live proof endpoint. Customer runs, output stores and logs keep their existing access restrictions. No owner/customer Apify API token or RPC credential is forwarded. CI authorization checks produce only a SELFTEST receipt, no product lookup or chargeable event.

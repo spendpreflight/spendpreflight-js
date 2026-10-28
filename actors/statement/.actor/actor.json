@@ -8,5 +8,6 @@
   "dockerfile": "../Dockerfile",
   "readme": "../README.md",
   "input": "./input_schema.json",
-  "output": "./output_schema.json"
+  "output": "./output_schema.json",
+  "applyEnvVarsToBuild": false
 }
