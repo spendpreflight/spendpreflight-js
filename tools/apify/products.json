@@ -1,7 +1,7 @@
 {
   "lint": {
     "actor": "x402-endpoint-lint-listing-guard",
-    "title": "x402 Endpoint Lint + Listing Guard Score",
+    "title": "x402 Endpoint Lint & Listing Guard | Passive 402 Checks",
     "event": "listing-checked",
     "price": 0.03,
     "example": {
@@ -32,12 +32,12 @@
       "url",
       "method"
     ],
-    "description": "Read-only x402/CDP technical validation, bounded Listing Guard metadata risk score, flagged spans and manual rewrite guidance.",
+    "description": "Inspect public HTTPS x402 endpoints with an unpaid GET. Export quote options, passive security coverage, CDP technical validation, listing-risk score, flagged spans and rewrite guidance. No payment, target POST or safety certification.",
     "outputs": {}
   },
   "receipt": {
     "actor": "usdc-payment-receipt-base",
-    "title": "USDC Payment Receipt — Base",
+    "title": "USDC Payment Receipt on Base | Signed Transfer Verification",
     "event": "receipt-created",
     "price": 0.005,
     "example": {
@@ -82,7 +82,7 @@
       }
     },
     "required": [],
-    "description": "Read-only native Base USDC transfer verification with payer/payee, amount, time, block, L2 confirmations, OFAC flags and signed printable receipt.",
+    "description": "Verify a native USDC transfer on Base from a transaction hash or recipient, amount and time window. Get signed JSON, a printable HTML receipt, L2 confirmations and OFAC address-match flags. Read-only; no wallet or funds movement.",
     "outputs": {
       "printable_receipt": {
         "type": "string",
@@ -93,7 +93,7 @@
   },
   "statement": {
     "actor": "usdc-wallet-statement-base",
-    "title": "USDC Wallet Statement Export — Base",
+    "title": "USDC Wallet Statement on Base | CSV & JSON Export",
     "event": "statement-created",
     "price": 0.05,
     "example": {
@@ -126,7 +126,7 @@
       "start",
       "end"
     ],
-    "description": "Read-only native Base USDC JSON/CSV in/out/self transfers with reconciled opening/closing and running balances, counterparties and OFAC flags.",
+    "description": "Export native USDC transactions for a public Base wallet as JSON and CSV. Includes incoming, outgoing and self transfers, running balances, counterparties and OFAC flags within a past window of up to 90 days. Read-only; not tax advice.",
     "outputs": {
       "csv": {
         "type": "string",
@@ -137,7 +137,7 @@
   },
   "token": {
     "actor": "token-safety-check-base",
-    "title": "Token Safety Check — Base Contract Signals",
+    "title": "Base Token Safety Check | Contract Risk Signals",
     "event": "token-checked",
     "price": 0.03,
     "example": {
@@ -165,7 +165,7 @@
     "required": [
       "address"
     ],
-    "description": "Read-only Base contract signals: bytecode, OFAC address match, standard owner/paused/proxy observations and bounded source/deployment evidence. No honeypot or safe-to-buy verdict.",
+    "description": "Inspect a Base token contract for bytecode, OFAC address matches, owner/paused/proxy observations and bounded source/deployment evidence. Read-only contract signals with explicit unknowns; no honeypot test, sellability check or safe-to-buy verdict.",
     "outputs": {}
   }
 }

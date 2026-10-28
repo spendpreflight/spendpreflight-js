@@ -1,8 +1,8 @@
 {
   "actorSpecification": 1,
   "name": "usdc-payment-receipt-base",
-  "title": "USDC Payment Receipt — Base",
-  "description": "Read-only native Base USDC transfer verification with payer/payee, amount, time, block, L2 confirmations, OFAC flags and signed printable receipt.",
+  "title": "USDC Payment Receipt on Base | Signed Transfer Verification",
+  "description": "Verify a native USDC transfer on Base from a transaction hash or recipient, amount and time window. Get signed JSON, a printable HTML receipt, L2 confirmations and OFAC address-match flags. Read-only; no wallet or funds movement.",
   "version": "0.1",
   "buildTag": "latest",
   "dockerfile": "../Dockerfile",

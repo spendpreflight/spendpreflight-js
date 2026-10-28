@@ -1,8 +1,8 @@
 {
   "actorSpecification": 1,
   "name": "crypto-address-sanctions-screener",
-  "title": "Crypto Address Sanctions Screener — OFAC SDN",
-  "description": "Batch exact-match crypto addresses against SpendPreflight's daily OFAC SDN snapshot, with source timestamp and explicit limits.",
+  "title": "Crypto Address Sanctions Screening | OFAC SDN Batch Check",
+  "description": "Screen 1–100 public crypto addresses for exact matches in the daily OFAC SDN snapshot. Export JSON with source timestamps and match flags. EVM matching ignores case; other formats preserve case. A non-match is not clearance or compliance certification.",
   "version": "0.1",
   "buildTag": "latest",
   "dockerfile": "../Dockerfile",
