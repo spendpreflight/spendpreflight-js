@@ -7,7 +7,7 @@ import {authRunPath} from './run-selector.mjs';
 const products=JSON.parse(readFileSync('tools/apify/products.json','utf8'));
 const actors={sanctions:{actor:'crypto-address-sanctions-screener',id:'hNJhO0occ4FYdhUyx',event:'address-screened',price:0.003,example:{addresses:['0x'+'0'.repeat(40)]}},...Object.fromEntries(Object.entries(products).map(([k,p])=>[k,{...p,id:({lint:'FbMeGePsoq306s2Dd',receipt:'Q6mFhTZ1lbt6eNA0P',statement:'Cb9T1AqAIr19SP8yp',token:'mYL8X3MyQXEN7XZ3S'})[k]}]))};
 const phase=process.env.CHANNEL_AUTH_PHASE,operation=process.env.CHANNEL_AUTH_PRODUCT;
-if(!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main'||!['prepare','repair','verify'].includes(phase)||!['all',...Object.keys(actors)].includes(operation))throw Error('Fixed CI phase/product required');
+if(!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main'||!['prepare','repair','verify'].includes(phase)||!['all','paid-four',...Object.keys(actors)].includes(operation))throw Error('Fixed CI phase/product required');
 const expected=JSON.parse(process.env.CHANNEL_AUTH_EXPECTED_BUILDS||'{}');
 const journal={at:new Date().toISOString(),phase,products:[],public_keys:{},state:'STARTED'};
 const save=()=>writeFileSync('apify-channel-auth.json',JSON.stringify(journal,null,2)+'\n');save();
@@ -17,7 +17,7 @@ async function request(method,path,body){
 }
 function files(dir,root=dir){return readdirSync(dir).sort().flatMap(name=>{const path=join(dir,name);if(['node_modules','storage','.git'].includes(name))return [];return statSync(path).isDirectory()?files(path,root):[{name:relative(root,path).replaceAll('\\','/'),format:'TEXT',content:readFileSync(path,'utf8')}];});}
 const user=await request('GET','/users/me');if(user.username!=='spendpreflight')throw Error('Wrong account');
-for(const op of operation==='all'?Object.keys(actors):[operation]){
+for(const op of operation==='all'?Object.keys(actors):operation==='paid-four'?['lint','receipt','statement','token']:[operation]){
  const p=actors[op],base='/actors/'+p.id,version=base+'/versions/0.1',entry={operation:op,actor_id:p.id,state:'STARTED'};journal.products.push(entry);save();
  try{
   const a=await request('GET',base);entry.previous_build=a.taggedBuilds?.latest?.buildId;
