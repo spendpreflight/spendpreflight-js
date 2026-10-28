@@ -6,7 +6,7 @@ import {stageProduct} from './stage-product.mjs';
 const products=JSON.parse(readFileSync('tools/apify/products.json','utf8'));
 const actors={sanctions:{actor:'crypto-address-sanctions-screener',id:'hNJhO0occ4FYdhUyx',event:'address-screened',price:0.003,example:{addresses:['0x'+'0'.repeat(40)]}},...Object.fromEntries(Object.entries(products).map(([k,p])=>[k,{...p,id:({lint:'FbMeGePsoq306s2Dd',receipt:'Q6mFhTZ1lbt6eNA0P',statement:'Cb9T1AqAIr19SP8yp',token:'mYL8X3MyQXEN7XZ3S'})[k]}]))};
 const phase=process.env.CHANNEL_AUTH_PHASE,operation=process.env.CHANNEL_AUTH_PRODUCT;
-if(!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main'||!['prepare','repair'].includes(phase)||!['all',...Object.keys(actors)].includes(operation))throw Error('Fixed CI phase/product required');
+if(!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main'||!['prepare','repair','verify'].includes(phase)||!['all',...Object.keys(actors)].includes(operation))throw Error('Fixed CI phase/product required');
 const expected=JSON.parse(process.env.CHANNEL_AUTH_EXPECTED_BUILDS||'{}');
 const journal={at:new Date().toISOString(),phase,products:[],public_keys:{},state:'STARTED'};
 const save=()=>writeFileSync('apify-channel-auth.json',JSON.stringify(journal,null,2)+'\n');save();
@@ -44,15 +44,19 @@ for(const op of operation==='all'?Object.keys(actors):[operation]){
   if(privateMeta?.isSecret!==true||privateMeta.value!==undefined)throw Error('Encrypted runtime key not verified');
   journal.public_keys[p.actor]=publicKey;entry.key_id=publicKey.key_id;entry.state='RUNTIME_KEY_READY';save();
   if(phase==='prepare')continue;
+  let build;
+  if(phase==='repair'){
   const dir=op==='sanctions'?'actors/sanctions':stageProduct(op),source=files(dir).filter(f=>!f.name.startsWith('test/'));
   if(source.some(f=>f.content.includes('BEGIN PRIVATE KEY')))throw Error('Private key must never enter source');
   await request('PUT',version,{sourceType:'SOURCE_FILES',sourceFiles:source,applyEnvVarsToBuild:false});entry.state='SOURCE_UPDATED_BUILD_INTENT';save();
   // Exactly one new authentication-repair build; never recreate or retry an ambiguous intent.
-  const build=await request('POST',base+'/builds?version=0.1&tag=latest&waitForFinish=60');entry.build_id=build.id;entry.state='BUILD_STARTED';save();
+  build=await request('POST',base+'/builds?version=0.1&tag=latest&waitForFinish=60');entry.build_id=build.id;entry.state='BUILD_STARTED';save();
   let b=build;for(let n=0;!['SUCCEEDED','FAILED','ABORTED','TIMED-OUT'].includes(b.status)&&n<30;n++){await new Promise(r=>setTimeout(r,5000));b=await request('GET','/actor-builds/'+build.id);}
   entry.build_status=b.status;save();if(b.status!=='SUCCEEDED')throw Error('Repair build not successful; inspect saved ID');
-  entry.state='AUTH_TEST_INTENT';save();
-  const run=await request('POST',base+'/runs?build='+build.id+'&memory=128&timeout=90&waitForFinish=60',{...p.example,_self_test:true});entry.run_id=run.id;entry.run_status=run.status;save();
+  }else{build=await request('GET','/actor-builds/'+entry.previous_build);if(build.status!=='SUCCEEDED')throw Error('Saved build not successful');entry.build_id=build.id;entry.build_status=build.status;}
+  if(!/^\d+\.\d+\.\d+$/.test(build.buildNumber??''))throw Error('Exact build number required for run selector');
+  entry.build_number=build.buildNumber;entry.state='AUTH_TEST_INTENT';save();
+  const run=await request('POST',base+'/runs?build='+encodeURIComponent(build.buildNumber)+'&memory=128&timeout=90&waitForFinish=60',{...p.example,_self_test:true});entry.run_id=run.id;entry.run_status=run.status;save();
   let r=run;for(let n=0;!['SUCCEEDED','FAILED','ABORTED','TIMED-OUT'].includes(r.status)&&n<18;n++){await new Promise(q=>setTimeout(q,5000));r=await request('GET','/actor-runs/'+run.id);}
   entry.run_status=r.status;save();if(r.status!=='SUCCEEDED'||r.buildId!==build.id)throw Error('Authentication-only run failed; inspect ID, no replay');
   const proof=await request('GET','/key-value-stores/'+r.defaultKeyValueStoreId+'/records/SELFTEST');
