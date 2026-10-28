@@ -1,8 +1,8 @@
 {
   "actorSpecification": 1,
   "name": "x402-endpoint-lint-listing-guard",
-  "title": "x402 Endpoint Lint + Listing Guard Score",
-  "description": "Read-only x402/CDP technical validation, bounded Listing Guard metadata risk score, flagged spans and manual rewrite guidance.",
+  "title": "x402 Endpoint Lint & Listing Guard | Passive 402 Checks",
+  "description": "Inspect public HTTPS x402 endpoints with an unpaid GET. Export quote options, passive security coverage, CDP technical validation, listing-risk score, flagged spans and rewrite guidance. No payment, target POST or safety certification.",
   "version": "0.1",
   "buildTag": "latest",
   "dockerfile": "../Dockerfile",

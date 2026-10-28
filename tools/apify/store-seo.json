@@ -1,0 +1,77 @@
+{
+  "scope": "Store metadata only; current Console auto-assigns taxonomy. Existing README examples retained; no build/run/pricing/access/key mutation.",
+  "categories_policy": "Current Console categories auto-assigned; Finance & crypto observed on all five. Legacy public categories absent/empty; no manual category selector. No ranking or indexing guarantee.",
+  "actors": {
+    "sanctions": {
+      "id": "hNJhO0occ4FYdhUyx",
+      "store_url": "https://apify.com/spendpreflight/crypto-address-sanctions-screener",
+      "title": "Crypto Address Sanctions Screening | OFAC SDN Batch Check",
+      "description": "Screen 1–100 public crypto addresses for exact matches in the daily OFAC SDN snapshot. Export JSON with source timestamps and match flags. EVM matching ignores case; other formats preserve case. A non-match is not clearance or compliance certification.",
+      "seoTitle": "Crypto Address Sanctions Screening | OFAC SDN Batch Check",
+      "seoDescription": "Batch-check crypto addresses against the daily OFAC SDN snapshot. JSON match flags and source timestamps; exact matches, not compliance clearance.",
+      "example_input": {
+        "addresses": [
+          "0x0000000000000000000000000000000000000000"
+        ]
+      },
+      "example_scope": "Illustrative public/synthetic input, not a payment, verified address or live result. Replace with own public input; never add internal self-test flags.",
+      "current_build": "siUpPlAFqh6ea9Vi2"
+    },
+    "lint": {
+      "id": "FbMeGePsoq306s2Dd",
+      "store_url": "https://apify.com/spendpreflight/x402-endpoint-lint-listing-guard",
+      "title": "x402 Endpoint Lint & Listing Guard | Passive 402 Checks",
+      "description": "Inspect public HTTPS x402 endpoints with an unpaid GET. Export quote options, passive security coverage, CDP technical validation, listing-risk score, flagged spans and rewrite guidance. No payment, target POST or safety certification.",
+      "seoTitle": "x402 Endpoint Lint & Listing Guard | Passive 402 Checks",
+      "seoDescription": "Inspect x402 quotes, passive security coverage and listing metadata with unpaid GET checks. JSON risk notes and rewrite guidance; no safety verdict.",
+      "example_input": {
+        "url": "https://api.spendpreflight.com/v1/check",
+        "method": "GET"
+      },
+      "example_scope": "Illustrative public/synthetic input, not a payment, verified address or live result. Replace with own public input; never add internal self-test flags.",
+      "current_build": "boH25YuAhxGa0Fjhu"
+    },
+    "receipt": {
+      "id": "Q6mFhTZ1lbt6eNA0P",
+      "store_url": "https://apify.com/spendpreflight/usdc-payment-receipt-base",
+      "title": "USDC Payment Receipt on Base | Signed Transfer Verification",
+      "description": "Verify a native USDC transfer on Base from a transaction hash or recipient, amount and time window. Get signed JSON, a printable HTML receipt, L2 confirmations and OFAC address-match flags. Read-only; no wallet or funds movement.",
+      "seoTitle": "USDC Payment Receipt on Base | Signed Transfer Verification",
+      "seoDescription": "Verify a Base USDC transfer. Export signed JSON or a printable receipt with confirmations and OFAC address flags. Read-only; no wallet required.",
+      "example_input": {
+        "tx_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "example_scope": "Illustrative public/synthetic input, not a payment, verified address or live result. Replace with own public input; never add internal self-test flags.",
+      "current_build": "xsme1fn0JnONFgoTj"
+    },
+    "statement": {
+      "id": "Cb9T1AqAIr19SP8yp",
+      "store_url": "https://apify.com/spendpreflight/usdc-wallet-statement-base",
+      "title": "USDC Wallet Statement on Base | CSV & JSON Export",
+      "description": "Export native USDC transactions for a public Base wallet as JSON and CSV. Includes incoming, outgoing and self transfers, running balances, counterparties and OFAC flags within a past window of up to 90 days. Read-only; not tax advice.",
+      "seoTitle": "USDC Wallet Statement on Base | CSV & JSON Export",
+      "seoDescription": "Export Base USDC wallet transfers, balances, counterparties and OFAC flags as CSV or JSON. Past windows up to 90 days; not tax advice.",
+      "example_input": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "start": "2026-10-24T00:00:00Z",
+        "end": "2026-10-25T00:00:00Z"
+      },
+      "example_scope": "Illustrative public/synthetic input, not a payment, verified address or live result. Replace with own public input; never add internal self-test flags.",
+      "current_build": "6vZzUpAW64jOoUBPI"
+    },
+    "token": {
+      "id": "mYL8X3MyQXEN7XZ3S",
+      "store_url": "https://apify.com/spendpreflight/token-safety-check-base",
+      "title": "Base Token Safety Check | Contract Risk Signals",
+      "description": "Inspect a Base token contract for bytecode, OFAC address matches, owner/paused/proxy observations and bounded source/deployment evidence. Read-only contract signals with explicit unknowns; no honeypot test, sellability check or safe-to-buy verdict.",
+      "seoTitle": "Base Token Safety Check | Contract Risk Signals",
+      "seoDescription": "Read-only Base token bytecode, OFAC, owner, paused and proxy signals with explicit unknowns. No honeypot test or safe-to-buy verdict.",
+      "example_input": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "chain": "eip155:8453"
+      },
+      "example_scope": "Illustrative public/synthetic input, not a payment, verified address or live result. Replace with own public input; never add internal self-test flags.",
+      "current_build": "QuRxI3dd4qucLkVgv"
+    }
+  }
+}
