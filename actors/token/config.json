@@ -1,0 +1,6 @@
+{
+  "operation": "token",
+  "actor": "token-safety-check-base",
+  "event": "token-checked",
+  "price_usd": 0.03
+}

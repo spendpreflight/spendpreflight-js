@@ -1,0 +1,12 @@
+{
+  "actorSpecification": 1,
+  "name": "token-safety-check-base",
+  "title": "Token Safety Check — Base Contract Signals",
+  "description": "Read-only Base contract signals: bytecode, OFAC address match, standard owner/paused/proxy observations and bounded source/deployment evidence. No honeypot or safe-to-buy verdict.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "dockerfile": "../Dockerfile",
+  "readme": "../README.md",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json"
+}

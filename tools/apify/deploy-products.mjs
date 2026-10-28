@@ -4,7 +4,7 @@ import {homedir} from 'node:os';import {join} from 'node:path';import {spawnSync
 import {stageProduct} from './stage-product.mjs';
 const products=JSON.parse(readFileSync('tools/apify/products.json','utf8'));
 const phase=process.env.APIFY_PRODUCTS_PHASE,selected=process.env.APIFY_PRODUCT;
-if(!['build','configure','publish','inspect'].includes(phase)||!['all','lint','receipt','statement'].includes(selected)||!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main')throw Error('Requires fixed product/phase on tested main with existing secret');
+if(!['build','configure','publish','inspect'].includes(phase)||!['all','lint','receipt','statement','token'].includes(selected)||!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main')throw Error('Requires fixed product/phase on tested main with existing secret');
 const expected=JSON.parse(process.env.APIFY_EXPECTED_BUILDS||'{}');
 const journal={at:new Date().toISOString(),phase,products:[],state:'STARTED'};
 const save=()=>writeFileSync('apify-products-deployment.json',JSON.stringify(journal,null,2)+'\n');save();
