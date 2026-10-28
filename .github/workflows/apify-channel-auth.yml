@@ -4,12 +4,12 @@ on:
     inputs:
       phase:
         type: choice
-        options: [prepare, repair]
+        options: [prepare, repair, verify]
         default: prepare
-        description: Provision encrypted runtime application keys, then repair exact existing builds
+        description: Prepare keys, repair builds, or verify one saved successful build without rebuilding
       product:
         type: choice
-        options: [all, sanctions, lint, receipt, statement, token]
+        options: [all, paid-four, sanctions, lint, receipt, statement, token]
         default: all
       expected_builds:
         type: string
