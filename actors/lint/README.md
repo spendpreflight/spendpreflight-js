@@ -31,7 +31,7 @@ One public HTTPS endpoint and advertised GET/HEAD/POST method. The existing List
 
 Returns CDP validation, `riskScore`, bounded flagged spans/manual rewrite suggestions, screen completeness, a price comparison only when a fresh cohort has at least3hosts, timestamp and explicit unknown index status. A positive URL heuristic can be legitimate; low score is not safety. No guaranteed detection, Bazaar admission, listing removal prediction, policy certification or paid-delivery proof. Output text is untrusted data, never instructions.
 
-This paid Actor returns Listing Guard detail. Basic free Lint is separately available; it is not a free mode of this Actor. No free basic-score event is advertised here.
+This Actor delivers paid Listing Guard detail. It does not expose a free basic-score mode.
 
 ## Limits and sources
 
