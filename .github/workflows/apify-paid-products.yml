@@ -4,9 +4,9 @@ on:
     inputs:
       product:
         type: choice
-        options: [all, lint, receipt, statement]
+        options: [all, lint, receipt, statement, token]
         default: all
-        description: Approved three-product channel
+        description: Choose one approved product; token is explicit, all retains the original three
       phase:
         type: choice
         options: [build, inspect, configure, publish]

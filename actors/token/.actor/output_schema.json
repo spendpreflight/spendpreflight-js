@@ -1,0 +1,11 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Token Safety Check — Base Contract Signals output",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "JSON contract-signals report",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    }
+  }
+}

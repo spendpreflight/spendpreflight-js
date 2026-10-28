@@ -24,3 +24,11 @@ test('one event per export rather than per transfer and no output on declined ch
  assert.deepEqual(calls,[{eventName:'statement-created',count:1},'dataset','statement.csv']);
  assert.equal(await deliver({}, {operation:'lint',event:'listing-checked'},{charge:async()=>({chargedCount:0}),pushData:async()=>assert.fail()}),false);
 });
+
+test('Token accepts one Base address only and charges exactly one completed report',async()=>{
+ assert.deepEqual(parseInput({address},'token'),{address});
+ assert.doesNotThrow(()=>parseInput({address,chain:'eip155:8453'},'token'));
+ for(const v of [{address:'bad'},{address,chain:'eip155:1'},{address,tier:'basic'},{address,rpc_url:'https://private.example'},{addresses:[address]}])assert.throws(()=>parseInput(v,'token'));
+ const events=[];await deliver({assessment_complete:false,verdict:'unknown'}, {operation:'token',event:'token-checked'},{charge:async x=>(events.push(x),{chargedCount:1}),pushData:async()=>events.push('dataset')});
+ assert.deepEqual(events,[{eventName:'token-checked',count:1},'dataset']);
+});

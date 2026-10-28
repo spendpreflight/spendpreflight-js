@@ -12,7 +12,8 @@ export function parseInput(value,operation,now=Date.now()){
   valid=only(['tx_hash','log_index','pay_to','amount','start','end'])&&(
    (typeof value.tx_hash==='string'&&/^0x[0-9a-fA-F]{64}$/.test(value.tx_hash)&&keys.every(k=>['tx_hash','log_index'].includes(k))&&(value.log_index===undefined||Number.isSafeInteger(value.log_index)&&value.log_index>=0))||
    (value.tx_hash===undefined&&value.log_index===undefined&&address(value.pay_to)&&typeof value.amount==='string'&&/^(?:0|[1-9][0-9]{0,70})(?:\.[0-9]{1,6})?$/.test(value.amount)&&range(value,now)));
- }else if(operation==='statement')valid=only(['address','start','end'])&&address(value.address)&&range(value,now);
+ }else if(operation==='token')valid=only(['address','chain'])&&address(value.address)&&(value.chain===undefined||value.chain==='eip155:8453');
+ else if(operation==='statement')valid=only(['address','start','end'])&&address(value.address)&&range(value,now);
  if(!valid)throw Error('Invalid or excessive product input');
  return {...value};
 }

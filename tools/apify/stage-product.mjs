@@ -1,7 +1,7 @@
 import {mkdirSync,copyFileSync,cpSync,readFileSync,writeFileSync,existsSync} from 'node:fs';
 import {join} from 'node:path';
 export function stageProduct(product){
- if(!['lint','receipt','statement'].includes(product))throw Error('Fixed product required');
+ if(!['lint','receipt','statement','token'].includes(product))throw Error('Fixed product required');
  const dir=join('.apify-build',product);if(existsSync(dir))throw Error('Staging directory already exists; inspect before rebuilding');
  mkdirSync(dir,{recursive:true});
  for(const file of ['package.json','package-lock.json','Dockerfile','.dockerignore'])copyFileSync('actors/paid-runtime/'+file,join(dir,file));
