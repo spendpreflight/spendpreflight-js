@@ -2,9 +2,9 @@
 
 ## New web and MCP tools
 
-- [x402 Security Check](https://spendpreflight.com/tools/x402-security-check/): free passive coverage in Lint; an optional full report from a current complete saved Lint snapshot costs0.10 USDC, with no new probe or shared trial. Replay protection, paid caching and settlement behavior remain unknown without controlled evidence.
-- [Quote Check](https://spendpreflight.com/tools/quote-check/): compare a supplied exact quote with cached public evidence;0.001 USDC for a usable comparison, unknown without charge, no shared trial. No target request or automatic payment approval.
-- [Seller Index](https://spendpreflight.com/tools/seller-index/): top three cached public matches free; extended results up to12 cost0.01 USDC only if additional matches exist. Missing ranking evidence remains unknown; no crawl or safety certification.
+- [x402 Security Check](https://spendpreflight.com/tools/x402-security-check/): free passive coverage in Lint; an optional full report from a current complete saved Lint snapshot costs 0.10 USDC, with no new probe or shared trial. Replay protection, paid caching and settlement behavior remain unknown without controlled evidence.
+- [Quote Check](https://spendpreflight.com/tools/quote-check/): compare a supplied exact quote with cached public evidence; 0.001 USDC for a usable comparison, unknown without charge, no shared trial. No target request or automatic payment approval.
+- [Seller Index](https://spendpreflight.com/tools/seller-index/): top three cached public matches free; extended results up to 12 cost 0.01 USDC only if additional matches exist. Missing ranking evidence remains unknown; no crawl or safety certification.
 
 Read the [announcement and tool-selection guide](https://spendpreflight.com/blog/new-x402-verification-tools.html). These are operated remote-service tools; this metadata update does not publish a new npm package or enable automatic payments.
 
