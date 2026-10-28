@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.spendpreflight/spendpreflight",
   "title": "SpendPreflight",
-  "description": "Trust and verification tools for stablecoin payments, for AI agents and the people who run them.",
-  "version": "1.2.0-metadata.3",
+  "description": "Free x402 Lint and Seller Index top 3; paid Security Check, Quote Check and stablecoin tools.",
+  "version": "1.2.0-metadata.4",
   "websiteUrl": "https://spendpreflight.com",
   "remotes": [
     {
@@ -13,8 +13,26 @@
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
-      "positioning": "SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.",
-      "catalog": "https://spendpreflight.com/tools.json"
+      "positioning": "SpendPreflight \u2014 trust and verification tools for stablecoin payments, built for AI agents and the people who run them.",
+      "catalog": "https://spendpreflight.com/tools.json",
+      "new_tools": [
+        {
+          "name": "security_check",
+          "scope": "Full passive coverage from a current complete saved Lint report; no new probe",
+          "price": "0.10 USDC; no shared trial"
+        },
+        {
+          "name": "quote_check",
+          "scope": "Supplied exact quote versus cached public evidence; no target request",
+          "price": "0.001 USDC for usable comparison; unknown without charge; no shared trial"
+        },
+        {
+          "name": "seller_index",
+          "scope": "Existing cached public catalog; no new crawl or target request",
+          "price": "Top three free; extended up to 12 costs 0.01 USDC only with extra matches; no shared trial"
+        }
+      ],
+      "announcement": "https://spendpreflight.com/blog/new-x402-verification-tools.html"
     }
   }
 }
