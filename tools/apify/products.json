@@ -48,7 +48,8 @@
         "title": "Base transaction hash",
         "type": "string",
         "editor": "textfield",
-        "description": "Successful native Base USDC transfer transaction. Use a log index when multiple transfers occur. Synthetic zero hash examples do not identify a payment."
+        "description": "Successful native Base USDC transfer transaction. Use a log index when multiple transfers occur. The prefilled hash is a public operator-owned historical example; replace it for your own receipt.",
+        "prefill": "0x9ede68ce1d33fd5d49d402d11de3127710102235ac5bdf020344345dfeb8ce4f"
       },
       "log_index": {
         "title": "Optional transfer log index",
@@ -106,19 +107,22 @@
         "title": "Public Base address",
         "type": "string",
         "editor": "textfield",
-        "description": "0x +40 hex digits. Native Circle USDC only, not bridged USDbC."
+        "description": "0x +40 hex digits. Native Circle USDC only, not bridged USDbC. The prefilled address/window is a public operator-owned one-minute historical example; replace all three fields for your own statement.",
+        "prefill": "0xBf4164e07552e4c1b1B1597E72C7acAA3F0a1c58"
       },
       "start": {
         "title": "Start (UTC ISO, inclusive)",
         "type": "string",
         "editor": "textfield",
-        "description": "Past ISO8601 time. Maximum90days, half-open range."
+        "description": "Past ISO8601 time. Maximum90days, half-open range.",
+        "prefill": "2026-10-22T22:07:00Z"
       },
       "end": {
         "title": "End (UTC ISO, exclusive)",
         "type": "string",
         "editor": "textfield",
-        "description": "Must follow start and not be in the future. Narrow large ranges when RPC limits are reached."
+        "description": "Must follow start and not be in the future. Narrow large ranges when RPC limits are reached.",
+        "prefill": "2026-10-22T22:08:00Z"
       }
     },
     "required": [

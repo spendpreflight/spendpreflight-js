@@ -7,7 +7,8 @@
       "title": "Base transaction hash",
       "type": "string",
       "editor": "textfield",
-      "description": "Successful native Base USDC transfer transaction. Use a log index when multiple transfers occur. Synthetic zero hash examples do not identify a payment."
+      "description": "Successful native Base USDC transfer transaction. Use a log index when multiple transfers occur. The prefilled hash is a public operator-owned historical example; replace it for your own receipt.",
+      "prefill": "0x9ede68ce1d33fd5d49d402d11de3127710102235ac5bdf020344345dfeb8ce4f"
     },
     "log_index": {
       "title": "Optional transfer log index",
