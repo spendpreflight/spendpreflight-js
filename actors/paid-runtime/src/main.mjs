@@ -35,7 +35,7 @@ try{
   diagnostic.stage='result_delivery';
   const delivered=await deliver(body.result,config,Actor);
   if(!delivered)throw Error('Event budget exhausted; no result delivered.');
-  console.log('One result delivered; no query/result values logged.');
+  console.log(config.operation==='statement'&&body.result.complete===false?'Partial coverage delivered; no completed-statement event charged. Inspect complete, coverage and completeness fields.':'One result delivered; no query/result values logged.');
  }
 
 }catch{console.error(failureLine(diagnostic));process.exitCode=1;}

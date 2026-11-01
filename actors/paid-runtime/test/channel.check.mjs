@@ -32,3 +32,11 @@ test('Token accepts one Base address only and charges exactly one completed repo
  const events=[];await deliver({assessment_complete:false,verdict:'unknown'}, {operation:'token',event:'token-checked'},{charge:async x=>(events.push(x),{chargedCount:1}),pushData:async()=>events.push('dataset')});
  assert.deepEqual(events,[{eventName:'token-checked',count:1},'dataset']);
 });
+
+test('partial Statement exports are delivered with coverage and CSV but no event charge',async()=>{
+ const calls=[];
+ const partial={complete:false,reconciled:false,coverage:{missing:[{from_block:'1',to_block:'999',direction:'in'}]},rows:[],csv:'complete,coverage\r\nfalse,partial\r\n'};
+ const actor={charge:async()=>assert.fail('Partial export must not be charged'),pushData:async r=>calls.push(r),setValue:async k=>calls.push(k)};
+ assert.equal(await deliver(partial,{operation:'statement',event:'statement-created'},actor),true);
+ assert.deepEqual(calls,[partial,'statement.csv']);
+});
