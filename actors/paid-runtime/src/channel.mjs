@@ -25,8 +25,9 @@ export function proofRegistry(operation){
  };
 }
 export async function deliver(result,config,actor){
- const charged=await actor.charge({eventName:config.event,count:1});
- if(charged.chargedCount!==1)return false;
+ // A partial Statement is useful coverage evidence, never a completed paid export.
+ const partial=config.operation==='statement'&&result.complete===false;
+ if(!partial){const charged=await actor.charge({eventName:config.event,count:1});if(charged.chargedCount!==1)return false;}
  await actor.pushData(result);
  if(config.operation==='receipt')await actor.setValue('receipt.html',result.printable_html,{contentType:'text/html; charset=utf-8'});
  if(config.operation==='statement')await actor.setValue('statement.csv',result.csv,{contentType:'text/csv; charset=utf-8'});

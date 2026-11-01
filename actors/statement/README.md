@@ -8,9 +8,9 @@ Operated by SpendPreflight. Read-only native Base USDC JSON/CSV in/out/self tran
 
 ```json
 {
-  "address": "0x0000000000000000000000000000000000000000",
-  "start": "2026-10-24T00:00:00Z",
-  "end": "2026-10-25T00:00:00Z"
+  "address": "0xBf4164e07552e4c1b1B1597E72C7acAA3F0a1c58",
+  "start": "2026-10-22T00:00:00Z",
+  "end": "2026-10-23T00:00:00Z"
 }
 ```
 
@@ -28,13 +28,13 @@ The Actor removes its default run INPUT after reading and never logs query/resul
 
 ## Scope and output
 
-One public Base address; ISO date range of at most90days with inclusive start/exclusive end, not in the future. Native Circle USDC Transfer logs only, not bridged USDbC, other tokens or off-chain records. Limits:1000transfers,128RPCcalls,25seconds. Provider/history limits, failed balance reconciliation or stale OFAC data fail without delivering a partial paid export. Narrow the range if needed.
+One public Base address; ISO date range of at most90days with inclusive start/exclusive end, not in the future. Native Circle USDC Transfer logs only, not bridged USDbC, other tokens or off-chain records. Limits:1000transfers,128RPCcalls,25seconds. Reads start with Infura, then fixed Base public and recent-only PublicNode fallbacks. Free dRPC metadata reads are a final fallback; its paid-only log methods are skipped. Log windows are at most1000blocks. HTTP503 is retried twice with bounded backoff inside the same overall budget;429 cooldowns are respected. A partially reachable range returns `complete:false`, exact covered/missing block windows, a clear partial-coverage message and null running balances. Missing activity is unknown. No completed-statement event is charged for partial results. Zero reachable coverage, failed reconciliation, invalid chain evidence or stale OFAC data still fails.
 
 JSON includes opening/closing balances, in/out/self transfers, exact decimal and atomic values, running balances, counterparties, UTC timestamps and OFAC address-match flags. `statement.csv` is available from the default run store. CSV counts as the same single export event, not an extra charge. Completeness is bounded RPC retrieval plus opening/closing balance reconciliation, not an independent cryptographic proof.
 
 ## Limits and sources
 
-Informational, **not legal or tax advice**, a compliance certification, investment advice or safety guarantee. OFAC non-match is not clearance. No custody, signing, transaction submission or funds movement. Verify evidence before acting. Chain reads stay on our existing Infura Base RPC with bounded caching/backoff; no new provider or secret copying. [Official Circle native USDC addresses](https://developers.circle.com/stablecoins/usdc-contract-addresses) · [OFAC public list](https://ofac.treasury.gov/sanctions-list-service) · [x402 documentation](https://docs.cdp.coinbase.com/x402/welcome).
+Informational, **not legal or tax advice**, a compliance certification, investment advice or safety guarantee. OFAC non-match is not clearance. No custody, signing, transaction submission or funds movement. Verify evidence before acting. Statement reads use Infura first, then fixed public Base, PublicNode and free dRPC metadata endpoints with bounded retries and no credential copying. Requested public addresses/block bounds/read-only calldata can reach these providers under their own privacy/retention policies. Only public chain metadata is cached; no address/result cache is added. [Official Circle native USDC addresses](https://developers.circle.com/stablecoins/usdc-contract-addresses) · [OFAC public list](https://ofac.treasury.gov/sanctions-list-service) · [x402 documentation](https://docs.cdp.coinbase.com/x402/welcome).
 
 ## Development acceptance
 

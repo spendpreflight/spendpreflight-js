@@ -98,16 +98,16 @@
     "event": "statement-created",
     "price": 0.05,
     "example": {
-      "address": "0x0000000000000000000000000000000000000000",
-      "start": "2026-10-24T00:00:00Z",
-      "end": "2026-10-25T00:00:00Z"
+      "address": "0xBf4164e07552e4c1b1B1597E72C7acAA3F0a1c58",
+      "start": "2026-10-22T00:00:00Z",
+      "end": "2026-10-23T00:00:00Z"
     },
     "input": {
       "address": {
         "title": "Public Base address",
         "type": "string",
         "editor": "textfield",
-        "description": "0x +40 hex digits. Native Circle USDC only, not bridged USDbC. The prefilled address/window is a public operator-owned one-minute historical example; replace all three fields for your own statement.",
+        "description": "0x +40 hex digits. Native Circle USDC only, not bridged USDbC. The prefilled address/window is a public operator-owned one-day historical example; replace all three fields for your own statement.",
         "prefill": "0xBf4164e07552e4c1b1B1597E72C7acAA3F0a1c58"
       },
       "start": {
@@ -115,14 +115,14 @@
         "type": "string",
         "editor": "textfield",
         "description": "Past ISO8601 time. Maximum90days, half-open range.",
-        "prefill": "2026-10-22T22:07:00Z"
+        "prefill": "2026-10-22T00:00:00Z"
       },
       "end": {
         "title": "End (UTC ISO, exclusive)",
         "type": "string",
         "editor": "textfield",
         "description": "Must follow start and not be in the future. Narrow large ranges when RPC limits are reached.",
-        "prefill": "2026-10-22T22:08:00Z"
+        "prefill": "2026-10-23T00:00:00Z"
       }
     },
     "required": [

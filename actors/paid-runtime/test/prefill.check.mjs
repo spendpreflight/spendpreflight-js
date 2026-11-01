@@ -25,6 +25,7 @@ test('Statement automated-test defaults satisfy required fields with a narrow pa
  const input=defaultInput('statement');
  assert.deepEqual(Object.keys(input),['address','start','end']);
  assert.notEqual(input.address,'0x'+'0'.repeat(40));
- assert.equal(Date.parse(input.end)-Date.parse(input.start),60000);
+ assert.equal(Date.parse(input.end)-Date.parse(input.start),86400000);
+ assert.deepEqual(input,products.statement.example);
  assert.doesNotThrow(()=>parseInput(input,'statement',Date.parse('2026-10-31T00:00:00Z')));
 });
