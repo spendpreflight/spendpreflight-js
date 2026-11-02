@@ -2,6 +2,8 @@
 
 ## New web and MCP tools
 
+- [Draft ERC-8478 Payee Verification](https://spendpreflight.com/tools/payee-binding/): remote MCP `verify_payee_binding` or `POST /v1/payee-binding`, 0.01 USDC with the existing shared trial. Signed JSON reports exactly one of nine outcomes at a pinned registry block; `not-read` is uncharged. Checks direct agent-wallet equality or EIP-712 delegation, including ERC-1271, rotation and expiry. An observation is not payment approval. Base first, plus public Robinhood reads; the Draft may change.
+
 - [x402 Security Check](https://spendpreflight.com/tools/x402-security-check/): free passive coverage in Lint; an optional full report from a current complete saved Lint snapshot costs 0.10 USDC, with no new probe or shared trial. Replay protection, paid caching and settlement behavior remain unknown without controlled evidence.
 - [Quote Check](https://spendpreflight.com/tools/quote-check/): compare a supplied exact quote with cached public evidence; 0.001 USDC for a usable comparison, unknown without charge, no shared trial. No target request or automatic payment approval.
 - [Seller Index](https://spendpreflight.com/tools/seller-index/): top three cached public matches free; extended results up to 12 cost 0.01 USDC only if additional matches exist. Missing ranking evidence remains unknown; no crawl or safety certification.
