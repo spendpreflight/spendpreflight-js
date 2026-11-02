@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.spendpreflight/spendpreflight",
   "title": "SpendPreflight",
-  "description": "Free x402 Lint and Seller Index top 3; paid Security Check, Quote Check and stablecoin tools.",
-  "version": "1.2.0-metadata.4",
+  "description": "Draft ERC-8478 payee verification, x402 Lint, receipts and stablecoin payment checks.",
+  "version": "1.2.0-metadata.5",
   "websiteUrl": "https://spendpreflight.com",
   "remotes": [
     {
@@ -16,6 +16,12 @@
       "positioning": "SpendPreflight \u2014 trust and verification tools for stablecoin payments, built for AI agents and the people who run them.",
       "catalog": "https://spendpreflight.com/tools.json",
       "new_tools": [
+        {
+          "name": "verify_payee_binding",
+          "scope": "Draft ERC-8478: nine pinned-block outcomes, direct wallet or EIP-712/ERC-1271 delegation; signed JSON. Not payment approval.",
+          "price": "0.01 USDC; shared trial; not-read without charge",
+          "url": "https://spendpreflight.com/tools/payee-binding/"
+        },
         {
           "name": "security_check",
           "scope": "Full passive coverage from a current complete saved Lint report; no new probe",
@@ -32,7 +38,8 @@
           "price": "Top three free; extended up to 12 costs 0.01 USDC only with extra matches; no shared trial"
         }
       ],
-      "announcement": "https://spendpreflight.com/blog/new-x402-verification-tools.html"
+      "announcement": "https://spendpreflight.com/blog/new-x402-verification-tools.html",
+      "payee_verification_standard": "ERC-8478 Draft, pinned implementation 8077443251fb6adc6c22afac6de258900d26ca8e"
     }
   }
 }
