@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.spendpreflight/spendpreflight",
   "title": "SpendPreflight",
-  "description": "Draft ERC-8478 payee verification, x402 Lint, receipts and stablecoin payment checks.",
-  "version": "1.2.0-metadata.5",
+  "description": "Call preflight_payment before signing x402: allow, hold or block. Sellers start with free Lint.",
+  "version": "1.2.0-metadata.6",
   "websiteUrl": "https://spendpreflight.com",
   "remotes": [
     {
@@ -39,7 +39,18 @@
         }
       ],
       "announcement": "https://spendpreflight.com/blog/new-x402-verification-tools.html",
-      "payee_verification_standard": "ERC-8478 Draft, pinned implementation 8077443251fb6adc6c22afac6de258900d26ca8e"
+      "payee_verification_standard": "ERC-8478 Draft, pinned implementation 8077443251fb6adc6c22afac6de258900d26ca8e",
+      "start_here": "preflight_payment",
+      "examples": "https://github.com/spendpreflight/examples",
+      "recommended_tools": [
+        "preflight_payment",
+        "check_payee",
+        "lint_endpoint",
+        "check_token",
+        "payment_receipt"
+      ],
+      "more_tools": "get_service_info",
+      "data_apis": "https://spendpreflight.com/tools/data-apis/"
     }
   }
 }
