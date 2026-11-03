@@ -221,3 +221,11 @@ const statement = await walletStatement({ address: '0x' + '1'.repeat(40), start:
 ```
 
 Placeholders are not real transactions. Receipt matching also supports `{pay_to, amount, start, end}`; ambiguous transfers require `tx_hash` plus optional `log_index`. Windows are past UTC ranges, start inclusive/end exclusive, max90days. Max1000transfers/128RPCcalls/25seconds; oversized/unavailable historical exports fail without settlement. A lost response may have uncertain settlement: inspect the wallet before creating another authorization. Free verification checks only a signature/hash, not fresh chain state or finality. No invoice ownership or tax-lot inference. Docs: https://spendpreflight.com/books/ .
+
+## Dated ERC-8004 payment identity
+
+SpendPreflight's payout wallet (0xBf4164e07552e4c1b1B1597E72C7acAA3F0a1c58) is verifiably bound to its ERC-8004 identity on Base, agent #1151628. Registered November 2, 2026 Pacific (November 3 UTC); the live self-check returned verified-wallet on 2026-11-03T13:18:52.000Z at Base block 53461275.
+
+[Registration transaction on BaseScan](https://basescan.org/tx/0x93bb25e3d17c92a3c7e2392586c9cbbe9c3fcaa5ea826b40274ab9c33174f118) · [Dated live self-check: signed result and evidence](https://spendpreflight.com/tools/payee-binding/self-check-2026-11-03.json). Dated live observation, not continuous monitoring, reputation, delivery, safety or permission to pay.
+
+The ERC-8478 draft author’s October 28, 2026 Robinhood Chain census found 5 matching payment addresses among 5,575 agents returning x402 payment requirements (fewer than 0.1%), from 20,046 registered agents. Almost all mismatches came from one legitimate shared-treasury operator. This is a dated, single-chain observation, not an ecosystem-wide rate, ranking or evidence of fraud. [Pinned census source](https://github.com/ethereum/ERCs/blob/8077443251fb6adc6c22afac6de258900d26ca8e/ERCS/erc-8478.md).
