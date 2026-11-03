@@ -1,5 +1,13 @@
 # SpendPreflight
 
+Call **preflight_payment before signing an x402 payment**. Get allow, hold or block, reasons and a signed decision receipt; enforce the decision within your approved wallet and budget. Preflight combines payee screening, spending rules and cached price/recipient evidence where available. ERC-8478 wallet binding remains a separate `verify_payee_binding` call.
+
+**About to pay?** Start with [Preflight](https://spendpreflight.com/tools/payee-screening/#preflight). **Selling via x402?** Start with [free Lint and monitoring](https://spendpreflight.com/tools/seller-monitoring/).
+
+[Three runnable examples](https://github.com/spendpreflight/examples): a guarded x402 client, Claude Code / Cursor MCP setup, and seller CI. The examples run offline by default; no payment or live probe is needed to try them.
+
+MCP core tools appear first: `preflight_payment`, `check_payee`, `lint_endpoint`, `check_token`, `payment_receipt`. Free `get_service_info` groups the complete enabled catalog into Buyers, Sellers, Books and Data APIs. All products and prices remain available in [the catalog](https://spendpreflight.com/tools/); [solar and FillPoint](https://spendpreflight.com/tools/data-apis/) have their own Data APIs page.
+
 ## New web and MCP tools
 
 - [Draft ERC-8478 Payee Verification](https://spendpreflight.com/tools/payee-binding/): remote MCP `verify_payee_binding` or `POST /v1/payee-binding`, 0.01 USDC with the existing shared trial. Signed JSON reports exactly one of nine outcomes at a pinned registry block; `not-read` is uncharged. Checks direct agent-wallet equality or EIP-712 delegation, including ERC-1271, rotation and expiry. An observation is not payment approval. Base first, plus public Robinhood reads; the Draft may change.
