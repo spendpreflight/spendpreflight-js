@@ -3,7 +3,7 @@
   "name": "io.github.spendpreflight/spendpreflight",
   "title": "SpendPreflight",
   "description": "Preflight x402 payments. Base ERC-8004 agent #1151628; wallet binding verified Nov 3, 2026.",
-  "version": "1.2.0-metadata.7",
+  "version": "1.2.0-metadata.8",
   "websiteUrl": "https://spendpreflight.com",
   "remotes": [
     {
@@ -67,7 +67,28 @@
           "context": "The ERC-8478 draft author’s October 28, 2026 Robinhood Chain census found 5 matching payment addresses among 5,575 agents returning x402 payment requirements (fewer than 0.1%), from 20,046 registered agents. Almost all mismatches came from one legitimate shared-treasury operator. This is a dated, single-chain observation, not an ecosystem-wide rate, ranking or evidence of fraud.",
           "source": "https://github.com/ethereum/ERCs/blob/8077443251fb6adc6c22afac6de258900d26ca8e/ERCS/erc-8478.md"
         }
-      }
+      },
+      "repository_scope": "Public SDK, MCP connection documentation and registry publishing manifest; hosted Worker implementation remains private."
     }
+  },
+  "icons": [
+    {
+      "src": "https://spendpreflight.com/icon.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": [
+        "any"
+      ]
+    },
+    {
+      "src": "https://spendpreflight.com/icon-256.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "256x256"
+      ]
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/spendpreflight/spendpreflight-js",
+    "source": "github"
   }
 }
