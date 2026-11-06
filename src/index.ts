@@ -324,3 +324,6 @@ export function createQuoteCheckHook(options:QuoteCheckOptions&{method?:'GET'|'H
     }catch{return {abort:true,reason:'Quote Check unknown/unavailable: no payment signature created; no automatic retry'};}
   };
 }
+
+export {createDeliveryEvidence, verifyDeliveryEvidence} from './delivery-evidence.js';
+export type {DeliveryEvidenceInput, DeliveryEvidence, DeliveryContract, DeliveryOutcome} from './delivery-evidence.js';
