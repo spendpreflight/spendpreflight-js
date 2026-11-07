@@ -1,6 +1,6 @@
 {
   "name": "spendpreflight",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Preflight x402 payments. Base ERC-8004 agent #1151628; wallet binding verified Nov 3, 2026.",
   "type": "module",
   "main": "dist/index.js",
