@@ -8,7 +8,39 @@ Call **preflight_payment before signing an x402 payment**. Get allow, hold or bl
 
 MCP core tools appear first: `preflight_payment`, `check_payee`, `lint_endpoint`, `check_token`, `payment_receipt`. Free `get_service_info` groups the complete enabled catalog into Buyers, Sellers, Books and Data APIs. All products and prices remain available in [the catalog](https://spendpreflight.com/tools/); [solar and FillPoint](https://spendpreflight.com/tools/data-apis/) have their own Data APIs page.
 
-## New web and MCP tools
+## JSON Spend Policy (SDK 0.4)
+
+`createSpendPolicy(policy)` adds an explicit JSON configuration to the existing local guard. It supports daily/per-call caps, a hold threshold, merchant payTo allow/block lists, and exact network/asset pairs. `parseSpendPolicy(unknown)` rejects extra or misspelled fields and unsupported valuations. Limits use USDC face value with at most six decimal places; this helper supports the SDK's known native-USDC deployments, not arbitrary-token USD prices. Merchant addresses are policy identifiers, not verified identities.
+
+```js
+import { createSpendPolicy } from 'spendpreflight';
+const policy = {
+  version: 1,
+  dailyCapUsd: 5, maxPerCallUsd: 0.25, holdAboveUsd: 0.10,
+  merchantAllowlist: ['0x1111111111111111111111111111111111111111'],
+  merchantBlocklist: [],
+  networkAllowlist: ['eip155:8453'],
+  assetAllowlist: [{
+    network: 'eip155:8453',
+    asset: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+  }]
+};
+const controller = createSpendPolicy(policy); // offline by default
+// controller.evaluate(challenge, selectedRequirement, spentTodayUsd): local preview
+// await controller.check(challenge, selectedRequirement): holds without remote preflight
+```
+
+Replace the illustrative recipient with an explicitly approved merchant. Empty allowlists deny all matching payments; blocklists win. Select an unmodified `exact` requirement from the x402 v2 challenge. `evaluate` is free and pure, and its caller-supplied spend value is only preview context. Its local `allow` is **not payment authorization**.
+
+For the actual payment path, create **one long-lived controller** with explicit remote options, then call `controller.attach(yourX402Client)` before signing. For example, `createSpendPolicy(policy, { remote: { fetch: separatelyGuardedScreeningFetch } })`. The helper runs local gates first and calls the existing `/v1/preflight` equivalent of MCP `preflight_payment` only for locally allowed requests. Plain fetch does not pay; a 402, malformed result, timeout or failure holds. Holds and blocks abort, with no fail-open mode or automatic hold approval. A same-controller recursive screening payment is rejected. No account, new route, key or package fee is introduced; the existing remote preflight service fee is separate.
+
+`check` returns the combined `allow`/`hold`/`block` decision and reasons, with the remote receipt ID when present. An allowed check reserves the selected amount before returning. Use either `attach` for the real client hook or a correctly integrated manual `check`; do not call both for the same attempt. The hook rejects requirements changed during preflight. This package never signs, settles, fetches the merchant target or moves funds.
+
+Reservations are conservative and **in-process per controller, per UTC day**, not a settlement ledger or wallet-wide budget. Allowed but abandoned/failed attempts retain reservations. Concurrent checks share the same queue; backward clocks do not reset it. Restarting or creating another controller starts another budget, so use wallet-level or durable shared controls across restarts, processes and devices. Do not reuse a returned verdict for another attempt or mutate requirements after the gate. The separate screening client's fees need their own bounded policy/budget and are not included in the merchant controller's cap.
+
+Run [the offline example](examples/spend-policy.mjs) after `npm run build`: `node examples/spend-policy.mjs`. It prints a local preview, an offline hold, and mock-only reservation decisions. It performs no live API call, trial, target request or payment.
+
+## Remote tools
 
 - [Draft ERC-8478 Payee Verification](https://spendpreflight.com/tools/payee-binding/): remote MCP `verify_payee_binding` or `POST /v1/payee-binding`, 0.01 USDC with the existing shared trial. Signed JSON reports exactly one of nine outcomes at a pinned registry block; `not-read` is uncharged. Checks direct agent-wallet equality or EIP-712 delegation, including ERC-1271, rotation and expiry. An observation is not payment approval. Base first, plus public Robinhood reads; the Draft may change.
 

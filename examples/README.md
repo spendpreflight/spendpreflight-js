@@ -4,6 +4,7 @@ Maintained by the operator of SpendPreflight. These examples use the agent's exi
 
 | Example | Purpose | Install in your agent app |
 |---|---|---|
+| [JSON Spend Policy](./spend-policy.mjs) | Offline policy preview, fail-closed preflight sequencing and mock-only daily reservations. | Run `npm run build`, then `node examples/spend-policy.mjs`; no wallet/network needed. |
 | [Vercel AI SDK](./vercel-ai-sdk.ts) | A tool posts the merchant's complete 402 challenge and rules to `/v1/preflight` ($0.02, Base USDC), returning allow/hold/block with a receipt. | `npm i ai zod` |
 | [LangChain JS](./langchain.ts) | `check_payee` calls the HTTP screening endpoint ($0.01, Base USDC), with wallet/name/domain inputs. | `npm i @langchain/core zod` |
 | [OpenAI Agents SDK](./openai-agents.ts) | A real SDK function tool requests preflight ($0.02), preserves hold/block and propagates errors. No model call is made by the factory. | `npm i @openai/agents zod` |
