@@ -8,7 +8,11 @@ Call **preflight_payment before signing an x402 payment**. Get allow, hold or bl
 
 MCP core tools appear first: `preflight_payment`, `check_payee`, `lint_endpoint`, `check_token`, `payment_receipt`. Free `get_service_info` groups the complete enabled catalog into Buyers, Sellers, Books and Data APIs. All products and prices remain available in [the catalog](https://spendpreflight.com/tools/); [solar and FillPoint](https://spendpreflight.com/tools/data-apis/) have their own Data APIs page.
 
-## JSON Spend Policy (SDK 0.4)
+## Spend Policy (free)
+
+SDK 0.4.0 includes a free JSON policy helper for daily and per-call caps, merchant allow/block lists, hold thresholds and exact network/asset pairs. Try the [offline example](examples/spend-policy.mjs); the existing remote preflight service fee is separate.
+
+### JSON configuration
 
 `createSpendPolicy(policy)` adds an explicit JSON configuration to the existing local guard. It supports daily/per-call caps, a hold threshold, merchant payTo allow/block lists, and exact network/asset pairs. `parseSpendPolicy(unknown)` rejects extra or misspelled fields and unsupported valuations. Limits use USDC face value with at most six decimal places; this helper supports the SDK's known native-USDC deployments, not arbitrary-token USD prices. Merchant addresses are policy identifiers, not verified identities.
 
