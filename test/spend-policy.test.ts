@@ -9,6 +9,7 @@ const remote=()=>vi.fn(async()=>response());
 
 it('accepts JSON policy and rejects misspellings, unsafe amounts, wrong assets, invalid lists and unsupported versions',()=>{
  expect(parseSpendPolicy(JSON.parse(JSON.stringify(policy)))).toEqual(policy);
+ expect(parseSpendPolicy({...policy,dailyCapUsd:1.000001}).dailyCapUsd).toBe(1.000001);
  for(const bad of [null,[],{}, {...policy,version:2},{...policy,extra:true},{...policy,dailyCapUsd:NaN},{...policy,maxPerCallUsd:0},{...policy,holdAboveUsd:-1},{...policy,dailyCapUsd:1e20},{...policy,holdAboveUsd:.0000001},{...policy,networkAllowlist:['base']},{...policy,assetAllowlist:[{network:'eip155:1',asset}]},{...policy,merchantAllowlist:['']},{...policy,merchantBlocklist:['x'.repeat(129)]},{...policy,assetAllowlist:[{network:'eip155:8453',asset,extra:true}]}])expect(()=>parseSpendPolicy(bad)).toThrow();
 });
 it('offline evaluation never authorizes signing, and no implicit network, trial or payment occurs',async()=>{

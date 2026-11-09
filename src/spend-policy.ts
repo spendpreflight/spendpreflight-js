@@ -28,7 +28,7 @@ const policyKeys=['version','dailyCapUsd','maxPerCallUsd','holdAboveUsd','mercha
 export function parseSpendPolicy(input:unknown):SpendPolicy {
  if(!object(input)||Object.keys(input).length!==policyKeys.length||Object.keys(input).some(k=>!policyKeys.includes(k))||input.version!==1)throw new Error('Invalid Spend Policy fields or version');
  for(const name of ['dailyCapUsd','maxPerCallUsd','holdAboveUsd']){
-  const n=input[name];if(typeof n!=='number'||!Number.isFinite(n)||n<0||(name!=='holdAboveUsd'&&n===0)||!Number.isSafeInteger(n*1e6))throw new Error('Policy limits require finite nonnegative amounts with at most six decimal places; caps must be positive');
+  const n=input[name];if(typeof n!=='number'||!Number.isFinite(n)||n<0||(name!=='holdAboveUsd'&&n===0)||!Number.isSafeInteger(Math.round(n*1e6))||Math.round(n*1e6)/1e6!==n)throw new Error('Policy limits require finite nonnegative amounts with at most six decimal places; caps must be positive');
  }
  for(const name of ['merchantAllowlist','merchantBlocklist','networkAllowlist'])if(!strings(input[name]))throw new Error('Invalid policy list: '+name);
  if((input.networkAllowlist as string[]).some(n=>!Object.hasOwn(knownAssets,n)))throw new Error('Unsupported policy network');
