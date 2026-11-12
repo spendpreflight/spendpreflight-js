@@ -9,9 +9,9 @@ on:
         description: Choose one approved product; token is explicit, all retains the original three
       phase:
         type: choice
-        options: [build, inspect, configure, publish]
+        options: [build, rebuild, inspect, configure, publish]
         default: inspect
-        description: Build privately; configure/publish requires exact saved builds
+        description: Rebuild only existing Receipt or Statement without runs/settings changes; exact saved build required
       expected_builds:
         type: string
         default: '{}'
