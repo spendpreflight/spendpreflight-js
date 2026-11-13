@@ -1,13 +1,22 @@
 // CI only. Token never enters arguments, URLs, source, stdout or artifacts.
-import {mkdirSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdirSync,readFileSync,writeFileSync,rmSync,readdirSync} from 'node:fs';
 import {homedir} from 'node:os';import {join} from 'node:path';import {spawnSync} from 'node:child_process';
 import {stageProduct} from './stage-product.mjs';
+import {rebuildBooks} from './rebuild-books.mjs';
 const products=JSON.parse(readFileSync('tools/apify/products.json','utf8'));
 const phase=process.env.APIFY_PRODUCTS_PHASE,selected=process.env.APIFY_PRODUCT;
-if(!['build','configure','publish','inspect'].includes(phase)||!['all','lint','receipt','statement','token'].includes(selected)||!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main')throw Error('Requires fixed product/phase on tested main with existing secret');
+if(!['build','rebuild','configure','publish','inspect'].includes(phase)||!['all','lint','receipt','statement','token'].includes(selected)||phase==='rebuild'&&!['receipt','statement'].includes(selected)||!process.env.APIFY_TOKEN||process.env.GITHUB_REF!=='refs/heads/main')throw Error('Requires fixed product/phase on tested main with existing secret');
 const expected=JSON.parse(process.env.APIFY_EXPECTED_BUILDS||'{}');
 const journal={at:new Date().toISOString(),phase,products:[],state:'STARTED'};
 const save=()=>writeFileSync('apify-products-deployment.json',JSON.stringify(journal,null,2)+'\n');save();
+function sourceFiles(root,dir=root){
+ return readdirSync(dir,{withFileTypes:true}).sort((a,b)=>a.name.localeCompare(b.name)).flatMap(entry=>{
+  const path=join(dir,entry.name);
+  if(entry.isDirectory())return sourceFiles(root,path);
+  if(!entry.isFile())throw Error('Unexpected source link');
+  return [{name:path.slice(root.length+1).replaceAll('\\','/'),format:'TEXT',content:readFileSync(path,'utf8')}];
+ });
+}
 async function request(method,path,body){
  const r=await fetch('https://api.apify.com/v2'+path,{method,headers:{Authorization:'Bearer '+process.env.APIFY_TOKEN,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),redirect:'error',signal:AbortSignal.timeout(30000)});
  const v=await r.json().catch(()=>null);if(!r.ok){const c=v?.error?.type;const err=Error('Apify operation failed');err.status=r.status;err.code=typeof c==='string'&&/^[a-z-]{1,100}$/.test(c)?c:'unknown';throw err;}return v.data??v;
@@ -28,6 +37,11 @@ try{
    }else if(!exists)throw Error('Existing Actor required; never create an alternate');
    let actor=await request('GET','/acts/'+identity),buildId=actor.taggedBuilds?.latest?.buildId;
    entry.actor_id=actor.id;entry.build_id=buildId;entry.isPublic=actor.isPublic;save();
+   if(phase==='rebuild'){
+    const dir=stageProduct(operation);
+    Object.assign(entry,await rebuildBooks({operation,actor,expectedBuildId:expected[operation],sourceFiles:sourceFiles(dir),request,record:state=>{Object.assign(entry,state);save();}}));
+    save();continue;
+   }
    entry.metrics={observed_at:new Date().toISOString(),lifetime_runs:actor.stats?.totalRuns??null,active_users_7days_including_owner:actor.stats?.totalUsers7Days??null,public_nonowner_run_stats_30days:actor.stats?.publicActorRunStats30Days??null,payouts_usd:null,payout_note:'Unknown: not exposed by supported Actor metadata. Record only an owner-verified payout aggregate, never infer from runs or configured prices.'};save();
    if(!buildId)throw Error('No tagged build');
    const build=await request('GET','/actor-builds/'+buildId);entry.build_status=build.status;save();if(build.status!=='SUCCEEDED')throw Error('Build is not successful');

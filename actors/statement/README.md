@@ -9,12 +9,12 @@ Operated by SpendPreflight. Read-only native Base USDC JSON/CSV in/out/self tran
 ```json
 {
   "address": "0xBf4164e07552e4c1b1B1597E72C7acAA3F0a1c58",
-  "start": "2026-10-22T00:00:00Z",
-  "end": "2026-10-23T00:00:00Z"
+  "start": "2026-10-22T22:07:00Z",
+  "end": "2026-10-22T22:08:00Z"
 }
 ```
 
-Examples are illustrative public/synthetic values, not verified payments or live results. Use your own public input. Unknown fields, malformed addresses/hashes, unsafe URLs and excessive date ranges fail before a chargeable result.
+The prefill is a one-minute public operator-owned historical example. A retained November1 observation completed and reconciled this window; it is not a new run or a promise of RPC availability. Replace all three fields for your own statement. Unknown fields, malformed addresses and excessive date ranges fail before a chargeable result.
 
 ## Pricing
 
@@ -28,9 +28,11 @@ The Actor removes its default run INPUT after reading and never logs query/resul
 
 ## Scope and output
 
-One public Base address; ISO date range of at most90days with inclusive start/exclusive end, not in the future. Native Circle USDC Transfer logs only, not bridged USDbC, other tokens or off-chain records. Limits:1000transfers,128RPCcalls,25seconds. Reads start with Infura, then fixed Base public and recent-only PublicNode fallbacks. Free dRPC metadata reads are a final fallback; its paid-only log methods are skipped. Infura log windows are at most10000blocks and shrink on provider range-limit errors. Public fallback windows are at most1000blocks. Cold metadata reads are paced at least250ms apart and log reads650ms apart per provider within a request; these are conservative operator limits, not provider guarantees. HTTP503 is retried twice with bounded backoff inside the same overall budget;429 cooldowns are respected. A partially reachable range returns `complete:false`, exact covered/missing block windows, a clear partial-coverage message and null running balances. Missing activity is unknown. No completed-statement event is charged for partial results. Zero reachable coverage, failed reconciliation, invalid chain evidence or stale OFAC data still fails.
+One public Base address; ISO date range of at most90days with inclusive start/exclusive end, not in the future. Native Circle USDC Transfer logs only, not bridged USDbC, other tokens or off-chain records. Limits:1000transfers,128RPCcalls,25seconds. Reads start with Infura, then fixed Base public and recent-only PublicNode fallbacks. Free dRPC metadata reads are a final fallback; its paid-only log methods are skipped. Infura log windows are at most10000blocks and shrink on provider range-limit errors. Public fallback windows are at most1000blocks. Cold metadata reads are paced at least250ms apart and log reads650ms apart per provider within a request; these are conservative operator limits, not provider guarantees. HTTP503 is retried twice with bounded backoff inside the same overall budget;429 cooldowns are respected. A partially reachable range returns `complete:false`, exact covered/missing block windows, a clear partial-coverage message and null running balances. Missing activity is unknown. No completed-statement event is charged for partial results. Zero reachable coverage produces an unavailable lookup outcome; failed reconciliation, invalid chain evidence and stale OFAC data still fail.
 
-JSON includes opening/closing balances, in/out/self transfers, exact decimal and atomic values, running balances, counterparties, UTC timestamps and OFAC address-match flags. `statement.csv` is available from the default run store. CSV counts as the same single export event, not an extra charge. Completeness is bounded RPC retrieval plus opening/closing balance reconciliation, not an independent cryptographic proof.
+The complete channel request, including its response body, has a hard 45-second deadline. Unavailable RPC coverage, historical balances or an expired lookup deadline produces one dataset item with `status: "unavailable"`, `complete: false`, `reconciled: false`, `result: null` and unknown coverage. An empty `rows` array in that outcome does not prove the wallet had no activity. No completed-result event is charged and no CSV is produced. Authentication, missing configuration, chain-integrity and stale sanctions failures still fail visibly. There is no automatic retry. A complete, reconciled statement with zero transfers remains a normal successful export.
+
+JSON includes opening/closing balances, in/out/self transfers, exact decimal and atomic values, running balances, counterparties, UTC timestamps and OFAC address-match flags. `statement.csv` is available for complete or explicitly partial exports. CSV counts as the same single export event, not an extra charge. Completeness is bounded RPC retrieval plus opening/closing balance reconciliation, not an independent cryptographic proof.
 
 ## Limits and sources
 

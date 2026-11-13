@@ -4,11 +4,12 @@ import {readFileSync} from 'node:fs';
 import {parseInput,proofRegistry,deliver} from './channel.mjs';
 import {signedEnvelope} from './attestation.mjs';
 import {failureLine} from './diagnostics.mjs';
+import {requestBooks,deliverBooksOutcome} from './books-outcome.mjs';
 const config=JSON.parse(readFileSync(new URL('../config.json',import.meta.url),'utf8'));
-await Actor.init();let server;const diagnostic={stage:'read_input'};
+await Actor.init();let server,selfTest=false;const diagnostic={stage:'read_input'};
 try{
  const raw=await Actor.getInput();await Actor.setValue('INPUT',null);
- const selfTest=raw?._self_test===true;
+ selfTest=raw?._self_test===true;
  const candidate=selfTest?Object.fromEntries(Object.entries(raw).filter(([k])=>k!=='_self_test')):raw;
  diagnostic.stage='input_validation';
  const input=parseInput(candidate,config.operation),runId=Actor.getEnv().actorRunId;
@@ -21,11 +22,17 @@ try{
  diagnostic.stage='application_signing';
  const envelope=signedEnvelope(config.operation,runId,nonce,input,selfTest?'auth_test':'product');
  diagnostic.stage='channel_request';
- const response=await fetch('https://api.spendpreflight.com/channels/apify/'+config.operation,{method:'POST',redirect:'error',signal:AbortSignal.timeout(120000),headers:{'Content-Type':'application/json'},body:JSON.stringify(envelope)});
+ let body;
+ if(!selfTest&&['receipt','statement'].includes(config.operation)){
+  body=await requestBooks(envelope,config.operation,diagnostic);
+ }else{
+  const response=await fetch('https://api.spendpreflight.com/channels/apify/'+config.operation,{method:'POST',redirect:'error',signal:AbortSignal.timeout(120000),headers:{'Content-Type':'application/json'},body:JSON.stringify(envelope)});
+  if(!response.ok){const failure=await response.json().catch(()=>({}));diagnostic.http_status=response.status;diagnostic.channel_stage=failure.failure_stage;diagnostic.code=failure.failure_code;throw Error('Product unavailable; no result event charged');}
+  diagnostic.stage='response_validation';
+  body=await response.json();
+ }
  proof.remove(nonce);
- if(!response.ok){const failure=await response.json().catch(()=>({}));diagnostic.http_status=response.status;diagnostic.channel_stage=failure.failure_stage;diagnostic.code=failure.failure_code;throw Error('Product unavailable; no result event charged');}
  diagnostic.stage='response_validation';
- const body=await response.json();
  if(selfTest){
   if(body.self_test?.authorized!==true||body.self_test?.operation!==config.operation)throw Error('Channel authorization test failed');
   await Actor.setValue('SELFTEST',{passed:true,operation:config.operation,proof_version:2,scope:'Private-run signed authorization only; no product lookup, chain query or event charged'});
@@ -38,5 +45,11 @@ try{
   console.log(config.operation==='statement'&&body.result.complete===false?'Partial coverage delivered; no completed-statement event charged. Inspect complete, coverage and completeness fields.':'One result delivered; no query/result values logged.');
  }
 
-}catch{console.error(failureLine(diagnostic));process.exitCode=1;}
-finally{if(server)await new Promise(resolve=>server.close(resolve));await Actor.exit({exit:false});}
+}catch(error){
+ try{
+  if(!selfTest&&await deliverBooksOutcome(error,config.operation,Actor)){
+   console.log('Lookup finished without a completed result. Inspect dataset status and reason; no completed-result event charged.');
+  }else{console.error(failureLine(diagnostic));process.exitCode=1;}
+ }catch{console.error(failureLine({...diagnostic,stage:'result_delivery'}));process.exitCode=1;}
+}
+finally{if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}await Actor.exit({exit:false});}

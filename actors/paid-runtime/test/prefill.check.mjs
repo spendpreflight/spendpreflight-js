@@ -18,6 +18,7 @@ test('Receipt automated-test defaults select a real historical lookup rather tha
  const input=defaultInput('receipt');
  assert.deepEqual(Object.keys(input),['tx_hash']);
  assert.notEqual(input.tx_hash,'0x'+'0'.repeat(64));
+ assert.deepEqual(input,products.receipt.example,'Deployment and documented example must use the same real hash');
  assert.doesNotThrow(()=>parseInput(input,'receipt'));
 });
 test('Statement automated-test defaults satisfy required fields with a narrow past range',()=>{
@@ -25,7 +26,7 @@ test('Statement automated-test defaults satisfy required fields with a narrow pa
  const input=defaultInput('statement');
  assert.deepEqual(Object.keys(input),['address','start','end']);
  assert.notEqual(input.address,'0x'+'0'.repeat(40));
- assert.equal(Date.parse(input.end)-Date.parse(input.start),86400000);
+ assert.equal(Date.parse(input.end)-Date.parse(input.start),60000);
  assert.deepEqual(input,products.statement.example);
  assert.doesNotThrow(()=>parseInput(input,'statement',Date.parse('2026-10-31T00:00:00Z')));
 });

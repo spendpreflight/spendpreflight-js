@@ -8,11 +8,11 @@ Operated by SpendPreflight. Read-only native Base USDC transfer verification wit
 
 ```json
 {
-  "tx_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  "tx_hash": "0x9ede68ce1d33fd5d49d402d11de3127710102235ac5bdf020344345dfeb8ce4f"
 }
 ```
 
-Examples are illustrative public/synthetic values, not verified payments or live results. Use your own public input. Unknown fields, malformed addresses/hashes, unsafe URLs and excessive date ranges fail before a chargeable result.
+The prefilled hash is a public operator-owned historical Base USDC transfer. It is an example, not a new payment or a promise of RPC availability. Replace it with your own public input. Unknown fields, malformed addresses/hashes and excessive date ranges fail before a chargeable result.
 
 ## Pricing
 
@@ -26,7 +26,9 @@ The Actor removes its default run INPUT after reading and never logs query/resul
 
 ## Scope and output
 
-Provide a Base tx hash (optional log index), OR exact pay_to + decimal amount + past start/end window. Modes cannot be mixed. Ambiguous transfers/multiple matches, missing or pending transactions, non-native-USDC logs, reorgs, stale OFAC/RPC data and provider failures return no result. Maximum90day search window and bounded RPC work.
+Provide a Base tx hash (optional log index), OR exact pay_to + decimal amount + past start/end window. Modes cannot be mixed. Maximum90day search window and bounded RPC work.
+
+The complete channel request, including its response body, has a hard 45-second deadline. A missing/pending transaction or no matching USDC transfer produces one dataset item with `status: "no_results"`. A timeout or unavailable RPC produces `status: "unavailable"`; activity remains unknown. These are graceful run outcomes, not verified receipts: `result: null`, `verified: false`, no printable receipt and no completed-result event charge. Authentication, missing configuration, ambiguous transfers, chain-integrity errors and stale sanctions evidence still fail visibly. There is no automatic retry.
 
 The JSON envelope includes payer/payee, decimal/atomic amount, UTC time, canonical block/hash, transaction/log index, L2 confirmations and current public OFAC address-match flags. Its Ed25519 JWS attests to the exact observation hash, not invoice ownership, commercial purpose, irreversible finality or future sanctions status. Download `receipt.html` from the default store for private printing; retain the original JSON for signature verification at the free [verification endpoint](https://api.spendpreflight.com/v1/books/verify) and [public keys](https://api.spendpreflight.com/.well-known/spendpreflight-keys.json).
 
