@@ -3,7 +3,7 @@
   "name": "io.github.spendpreflight/spendpreflight",
   "title": "SpendPreflight",
   "description": "Preflight x402 payments. Base ERC-8004 agent #1151628; wallet binding verified Nov 3, 2026.",
-  "version": "1.2.0-metadata.8",
+  "version": "1.2.0-metadata.9",
   "websiteUrl": "https://spendpreflight.com",
   "remotes": [
     {
@@ -68,7 +68,15 @@
           "source": "https://github.com/ethereum/ERCs/blob/8077443251fb6adc6c22afac6de258900d26ca8e/ERCS/erc-8478.md"
         }
       },
-      "repository_scope": "Public SDK, MCP connection documentation and registry publishing manifest; hosted Worker implementation remains private."
+      "repository_scope": "Public SDK, MCP connection documentation and registry publishing manifest; hosted Worker implementation remains private.",
+      "authentication": {
+        "method": "none",
+        "required": false,
+        "description": "No account, API key, OAuth or Authorization header is required to connect, initialize or list tools. Paid tool execution separately requires an approved x402 payment unless an existing free path or eligible trial applies.",
+        "documentation": "https://docs.spendpreflight.com/mcp/"
+      },
+      "documentation": "https://docs.spendpreflight.com/mcp/",
+      "openapi": "https://api.spendpreflight.com/openapi.json"
     }
   },
   "icons": [
