@@ -3,7 +3,7 @@
   "name": "io.github.spendpreflight/spendpreflight",
   "title": "SpendPreflight",
   "description": "Preflight x402 payments. Base ERC-8004 agent #1151628; wallet binding verified Nov 3, 2026.",
-  "version": "1.2.0-metadata.9",
+  "version": "1.2.0-metadata.10",
   "websiteUrl": "https://spendpreflight.com",
   "remotes": [
     {
@@ -16,6 +16,12 @@
       "positioning": "SpendPreflight — trust and verification tools for stablecoin payments, built for AI agents and the people who run them.",
       "catalog": "https://spendpreflight.com/tools.json",
       "new_tools": [
+        {
+          "name": "check_merchant",
+          "scope": "Check a proposed store purchase before paying. Basic applies supplied rules and returns an unsigned decision. Deep uses bounded public evidence and signs a usable decision.",
+          "price": "Basic free. Explicit deep check 0.01 USDC on Base. No shared trial or automatic upgrade.",
+          "url": "https://spendpreflight.com/for-agents/"
+        },
         {
           "name": "verify_payee_binding",
           "scope": "Draft ERC-8478: nine pinned-block outcomes, direct wallet or EIP-712/ERC-1271 delegation; signed JSON. Not payment approval.",
